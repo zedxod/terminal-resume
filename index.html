@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Terminal Resume</title>
+<style>
+body {
+  background: #000;
+  color: #33ff33;
+  font-family: monospace;
+  padding: 20px;
+}
+#terminal {
+  max-width: 800px;
+}
+input {
+  background: black;
+  color: #33ff33;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: monospace;
+}
+</style>
+</head>
+<body>
+
+<div id="terminal">
+  <p>Welcome. Type <b>help</b></p>
+  <div id="output"></div>
+  <input id="cmd" autofocus placeholder=">">
+</div>
+
+<script>
+const output = document.getElementById("output");
+const cmd = document.getElementById("cmd");
+
+const resume = `
+NAME: Your Name
+ROLE: Software Engineer
+
+SKILLS:
+- Linux
+- Python
+- Networking
+
+CONTACT:
+- email@example.com
+- github.com/username
+`;
+
+cmd.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const val = cmd.value.trim();
+    output.innerHTML += `<p>> ${val}</p>`;
+    if (val === "help") {
+      output.innerHTML += "<p>Commands: help, resume, whoami</p>";
+    } else if (val === "resume") {
+      output.innerHTML += `<pre>${resume}</pre>`;
+    } else if (val === "whoami") {
+      output.innerHTML += "<p>Just a human who loves Linux.</p>";
+    } else {
+      output.innerHTML += "<p>command not found</p>";
+    }
+    cmd.value = "";
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+});
+</script>
+
+</body>
+</html>
