@@ -30,18 +30,81 @@ body{
   border:2px solid var(--border);
   box-shadow:0 0 30px rgba(0,0,0,.8);
 }
+/* macOS title bar */
 #title-bar {
-  height: 32px;
+  height: 34px;
   background: linear-gradient(#1e1e1e, #161616);
   border-bottom: 1px solid #0f0f0f;
-  color: #cfcfcf;
-  font-size: 13px;
   display: flex;
   align-items: center;
-  justify-content: center;
   position: relative;
   user-select: none;
 }
+
+/* Traffic lights */
+.window-buttons {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.close { background: #ff5f56; }
+.minimize { background: #ffbd2e; }
+.maximize { background: #27c93f; }
+
+/* Tab bar */
+.tab-bar {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tabs */
+.tab {
+  background: #2a2a2a;
+  color: #d0d0d0;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 1px 1px rgba(0,0,0,0.6);
+}
+
+.tab.active {
+  background: #303030;
+}
+
+/* + button */
+.tab-add {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #1f1f1f;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  pointer-events: none;
+  cursor: pointer;
+}
+
+#title-bar:hover .tab-add {
+  background: #2a2a2a;
+  color: rgba(255,255,255,0.85);
+}
+
 .window-buttons {
   opacity: 0.85;
   position: absolute;
@@ -157,8 +220,12 @@ input{
           <div class="btn minimize"></div>
           <div class="btn maximize"></div>
         </div>
-        <div class="title-text">Command Prompt</div>
-   </div>
+      
+        <div class="tab-bar" id="tabBar">
+          <div class="tab active">Command Prompt</div>
+          <div class="tab-add" id="addTab">+</div>
+        </div>
+    </div>
       
 
   <div id="terminal">
@@ -552,6 +619,7 @@ async function boot() {
   await typeLine("Access granted.");
   await sleep(600);
   await typeLine("Welcome to Secret Lab");
+  print("");
   await typeLine("Type 'help' to continue.");
   isBooting = false;
   mode = "shell";
@@ -902,6 +970,34 @@ cmdInput.addEventListener("keydown", async e => {
     cmdInput.value = "";
   }
 });
+
+/* ---------------- FAKE TABS ---------------- */
+const tabBar = document.getElementById("tabBar");
+const addTabBtn = document.getElementById("addTab");
+
+let tabCount = 1;
+
+addTabBtn.addEventListener("click", () => {
+  tabCount++;
+
+  const tab = document.createElement("div");
+  tab.className = "tab";
+  tab.textContent = `Tab ${tabCount}`;
+
+  // Switch active tab visually
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+  });
+
+  // Insert before +
+  tabBar.insertBefore(tab, addTabBtn);
+
+  // Make new tab active
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  tab.classList.add("active");
+});
+
 // Start boot sequence
 boot();
 </script>
