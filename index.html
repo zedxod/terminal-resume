@@ -22,25 +22,70 @@ body{
   padding:0;
 }
 #cmd-window{
+  border-radius: 8px;
+  overflow: hidden;
   width:900px;
   max-width:95%;
   background:var(--bg);
   border:2px solid var(--border);
   box-shadow:0 0 30px rgba(0,0,0,.8);
 }
-#title-bar{
-  background:var(--titlebar);
-  color:#ccc;
-  padding:6px 10px;
-  font-size:14px;
-  display:flex;
-  justify-content:space-between;
+#title-bar {
+  height: 32px;
+  background: linear-gradient(#1e1e1e, #161616);
+  border-bottom: 1px solid #0f0f0f;
+  color: #cfcfcf;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
 }
-.window-buttons{display:flex;gap:6px;}
-.btn{width:12px;height:12px;border-radius:50%;}
-.close{background:#ff5f56;}
-.minimize{background:#ffbd2e;}
-.maximize{background:#27c93f;}
+.window-buttons {
+  opacity: 0.85;
+  position: absolute;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.close {
+  background: #ff5f56;
+}
+
+.minimize {
+  background: #ffbd2e;
+}
+
+.maximize {
+  background: #27c93f;
+}
+
+/* Subtle macOS hover behavior */
+#title-bar:hover .close {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+}
+#title-bar:hover .minimize {
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+}
+#title-bar:hover .maximize {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+}
+
+.title-text {
+  pointer-events: none;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  opacity: 0.9;
+}
 
 #terminal{
   color:var(--green);
@@ -101,18 +146,20 @@ input{
   }
 }
 </style>
+<link rel="stylesheet" href="background.css">
 </head>
 
 <body>
 <div id="cmd-window">
-  <div id="title-bar">
-    <span>Command Prompt</span>
-    <div class="window-buttons">
-      <div class="btn close"></div>
-      <div class="btn minimize"></div>
-      <div class="btn maximize"></div>
-    </div>
-  </div>
+    <div id="title-bar">
+        <div class="window-buttons">
+          <div class="btn close"></div>
+          <div class="btn minimize"></div>
+          <div class="btn maximize"></div>
+        </div>
+        <div class="title-text">Command Prompt</div>
+   </div>
+      
 
   <div id="terminal">
     <div id="output"></div>
