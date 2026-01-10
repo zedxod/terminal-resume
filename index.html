@@ -116,7 +116,7 @@ input{
 
   <div id="terminal">
     <div id="output"></div>
-    <div class="prompt-line" id="prompt">
+    <div class="prompt-line" id="prompt" style="display:none">
       <span class="prompt">C:\Users\NullFrag&gt;</span>
       <input id="cmd" disabled autofocus>
     </div>
@@ -134,6 +134,7 @@ const terminal = document.getElementById("terminal");
 const mobileBtn = document.getElementById("mobile-keyboard-btn");
 
 let mode = "boot";
+let isBooting = true;
 const history = [];
 let historyIndex = -1;
 let currentDir = "";
@@ -267,55 +268,110 @@ function findSimilarCommand(input) {
 }
 
 /* ---------------- FAKE FILESYSTEM COMMANDS ---------------- */
+
 function dirCommand() {
-  const items = currentDir === "resume" ? filesInResume : filesInRoot;
-  if (items.length === 0) {
-    print(" File Not Found");
-  } else {
-    items.forEach(item => print(" " + item));
-  }
+  const inResume = currentDir === "resume";
+  const path = `C:\\Users\\NullFrag${inResume ? "\\resume" : ""}`;
+
+  // Volume info (shown every time like CMD)
+  print(" Volume in drive C has no label.");
+  print(" Volume Serial Number is CA20-5461");
+  print("");
+  print(` Directory of ${path}`);
+  print("");
+
+  const now = new Date();
+
+  const formatDate = d =>
+    d.toLocaleDateString("en-GB").replace(/\//g, "-");
+
+  const formatTime = d =>
+    d.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+
+  let fileCount = 0;
+  let dirCount = 0;
+  let totalBytes = 0;
+
+  // . and .. entries
+  print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          .`);
+  print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          ..`);
+  dirCount += 2;
+
+  const items = inResume ? filesInResume : filesInRoot;
+
+  items.forEach(item => {
+    if (item.includes(".")) {
+      const size = (Math.floor(Math.random() * 8) + 1) * 1024;
+      totalBytes += size;
+      fileCount++;
+
+      print(
+        `${formatDate(now)}  ${formatTime(now)}           ${size
+          .toString()
+          .padStart(10, " ")} ${item}`
+      );
+    } else {
+      dirCount++;
+      print(
+        `${formatDate(now)}  ${formatTime(now)}    <DIR>          ${item}`
+      );
+    }
+  });
+
+  print(
+    `               ${fileCount} File(s) ${totalBytes
+      .toLocaleString()
+      .padStart(14, " ")} bytes`
+  );
+  print(
+    `               ${dirCount} Dir(s)  151,681,032,192 bytes free`
+  );
 }
 
 function cdCommand(arg) {
   if (!arg || arg === ".") return;
+
   if (arg === "..") {
     currentDir = "";
     updatePrompt();
     return;
   }
+
   if (arg === "resume" && currentDir === "") {
     currentDir = "resume";
     updatePrompt();
     return;
   }
-  print(`The system cannot find the path specified: ${arg}`);
+
+  print("The system cannot find the path specified.");
 }
 
 function catCommand(arg) {
+  if (!arg) {
+    print("The system cannot find the file specified.");
+    return;
+  }
+
   if (currentDir !== "resume") {
     print("The system cannot find the file specified.");
     return;
   }
+
   if (arg === "resume.txt") {
     print("");
-    const lines = data.resume.split("\n").filter(l => l.trim());
-    lines.forEach(line => print(line));
+    data.resume
+      .split("\n")
+      .filter(l => l.trim())
+      .forEach(line => print(line));
   } else {
     print("The system cannot find the file specified.");
   }
 }
 
-async function loadingDots(text, cycles=4, interval=400){
-  const start=output.textContent.length;
-  let dots=0;
-  for(let i=0;i<cycles*2;i++){
-    dots=(dots+1)%4;
-    output.textContent=
-      output.textContent.slice(0,start)+text+".".repeat(dots)+"\n";
-    terminal.scrollTop=terminal.scrollHeight;
-    await sleep(interval);
-  }
-}
 
 /* ---------------- PING COMMAND ---------------- */
 async function pingCommand(target){
@@ -421,8 +477,22 @@ async function treeCommand() {
   print("");
 }
 
-let isBooting = true;
+async function loadingDots(text, cycles = 4, interval = 400) {
+  const start = output.textContent.length;
+  let dots = 0;
 
+  for (let i = 0; i < cycles * 2; i++) {
+    dots = (dots + 1) % 4;
+    output.textContent =
+      output.textContent.slice(0, start) +
+      text +
+      ".".repeat(dots) +
+      "\n";
+
+    terminal.scrollTop = terminal.scrollHeight;
+    await sleep(interval);
+  }
+}
 
 /* ---------------- BOOT ---------------- */
 async function boot() {
@@ -436,12 +506,12 @@ async function boot() {
   await sleep(600);
   await typeLine("Welcome to Secret Lab");
   await typeLine("Type 'help' to continue.");
-  misBooting = false;
+  isBooting = false;
   mode = "shell";
+  promptEl.style.display = "flex";
   cmdInput.disabled = false;
   updatePrompt();
   cmdInput.focus();
-
 }
 
 /* ---------------- SNAKE GAME ---------------- */
@@ -660,7 +730,7 @@ cmdInput.addEventListener('blur', () => {
 
 /* ---------------- MAIN SHELL ---------------- */
 cmdInput.addEventListener("keydown", async e => {
-  if (mode !== "shell") return;
+    if (mode !== "shell" || isBooting) return;
 
   // TAB COMPLETION
   if (e.key === "Tab") {
