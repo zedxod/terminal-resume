@@ -93,7 +93,7 @@ let mode="boot";
 const history=[];
 let historyIndex=-1;
 
-/* ---------------- COMMAND DATA (RESTORED) ---------------- */
+/* ---------------- COMMAND DATA ---------------- */
 const data={
 help:`
 Available commands:
@@ -104,6 +104,7 @@ Available commands:
   projects
   contact
   snake
+  ping <target>
   clear
 `,
 whoami:`
@@ -146,6 +147,7 @@ function print(line=""){
   output.textContent+=line+"\n";
   terminal.scrollTop=terminal.scrollHeight;
 }
+
 async function typeLine(text,delay=14){
   if(!text){print("");return;}
   let buf="";
@@ -157,21 +159,60 @@ async function typeLine(text,delay=14){
   print("");
 }
 
+function sleep(ms){
+  return new Promise(resolve=>setTimeout(resolve,ms));
+}
+
+async function loadingDots(text, cycles=4, interval=400){
+  const start=output.textContent.length;
+  let dots=0;
+  for(let i=0;i<cycles*2;i++){
+    dots=(dots+1)%4;
+    output.textContent=
+      output.textContent.slice(0,start)+text+".".repeat(dots)+"\n";
+    terminal.scrollTop=terminal.scrollHeight;
+    await sleep(interval);
+  }
+}
+
+/* ---------------- PING COMMAND (NEW) ---------------- */
+async function pingCommand(target){
+  print(`Pinging ${target} with 32 bytes of data:`);
+
+  const times=[];
+
+  for(let i=0;i<4;i++){
+    const t=3+Math.floor(Math.random()*3); // 3–5 ms
+    times.push(t);
+    await sleep(700);
+    print(`Reply from ${target}: bytes=32 time=${t}ms TTL=118`);
+  }
+
+  const min=Math.min(...times);
+  const max=Math.max(...times);
+  const avg=Math.round(times.reduce((a,b)=>a+b,0)/times.length);
+
+  print("");
+  print(`Ping statistics for ${target}:`);
+  print(`    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),`);
+  print(`Approximate round trip times in milli-seconds:`);
+  print(`    Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms`);
+}
+
 /* ---------------- BOOT ---------------- */
-async function boot() {
+async function boot(){
   await typeLine("Microsoft Windows [Version 10.0.19045.4046]");
   await typeLine("(c) Microsoft Corporation. All rights reserved.");
   await typeLine("Initializing secure environment...");
-  await typeLine("Loading modules...");
-  await typeLine("Decrypting session keys...");
+  await loadingDots("Loading modules",3,350);
+  await loadingDots("Decrypting session keys",3,350);
   await typeLine("Access granted.");
   await typeLine("Welcome to Secret Lab");
   await typeLine("Type 'help' to continue.");
-  mode = "shell";
-  cmd.disabled = false;
+  mode="shell";
+  cmd.disabled=false;
   cmd.focus();
 }
-
 boot();
 
 /* ---------------- SNAKE ---------------- */
@@ -252,11 +293,13 @@ cmd.addEventListener("keydown",async e=>{
 
   if(e.key==="ArrowUp"&&history.length){
     historyIndex=historyIndex<=0?history.length-1:historyIndex-1;
-    cmd.value=history[historyIndex]; e.preventDefault();
+    cmd.value=history[historyIndex];
+    e.preventDefault();
   }
   if(e.key==="ArrowDown"&&history.length){
     historyIndex=historyIndex>=history.length-1?-1:historyIndex+1;
-    cmd.value=historyIndex===-1?"":history[historyIndex]; e.preventDefault();
+    cmd.value=historyIndex===-1?"":history[historyIndex];
+    e.preventDefault();
   }
 
   if(e.key==="Enter"){
@@ -264,12 +307,19 @@ cmd.addEventListener("keydown",async e=>{
     print(`C:\\Users\\NullFrag> ${val}`);
     if(val)history.push(val),historyIndex=-1;
 
-    if(val==="snake")startSnake();
-    else if(val==="clear")output.textContent="";
+    if(val==="snake") startSnake();
+    else if(val==="clear") output.textContent="";
+    else if(val.startsWith("ping ")) {
+      const target = val.split(" ")[1];
+      await pingCommand(target);
+    }
     else if(data[val]){
       for(const l of data[val].split("\n").filter(x=>x.trim()))
         await typeLine(l);
-    } else print(`'${val}' is not recognized as an internal or external command.`);
+    }
+    else {
+      print(`'${val}' is not recognized as an internal or external command.`);
+    }
 
     cmd.value="";
   }
