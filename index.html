@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NullFrag — Command Prompt</title>
 
 <style>
@@ -621,6 +622,12 @@ async function boot() {
   await typeLine("Welcome to Secret Lab");
   print("");
   await typeLine("Type 'help' to continue.");
+
+if (window.innerWidth < 768) {
+  await typeLine("⚠️ Mobile detected — best experience on desktop/laptop");
+  await sleep(1200);
+}
+
   isBooting = false;
   mode = "shell";
   promptEl.style.display = "flex";
@@ -643,7 +650,7 @@ function startSnake() {
 
   const charWidth = 8.8;
   const charHeight = 18;
-  const cols = Math.floor(terminal.clientWidth / charWidth) - 4;
+  const cols = Math.floor(terminal.clientWidth / 9.8) - 12;
   const rows = Math.floor(terminal.clientHeight / charHeight) - 6;
 
   let snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
