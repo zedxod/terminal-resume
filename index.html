@@ -17,7 +17,7 @@
 
         body {
             background: #111;
-            font-family: Consolas,"Lucida Console",monospace;
+            font-family: Consolas, "Lucida Console", monospace;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -26,6 +26,26 @@
             padding: 0;
         }
 
+        /* ---------------- MOBILE FIX ---------------- */
+        @media (max-width: 768px) {
+            body {
+                /* Disable centering on mobile */
+                display: block;
+                height: calc(var(--vh, 1vh) * 100);
+                overflow: hidden;
+            }
+
+            #cmd-window {
+                width: 100vw;
+                max-width: 100vw;
+                height: calc(var(--vh, 1vh) * 100);
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+            }
+        }
+
+        /* Desktop / default terminal window */
         #cmd-window {
             border-radius: 8px;
             overflow: hidden;
@@ -266,6 +286,7 @@
     <div id="mobile-keyboard-btn">⌨️ Type Command</div>
 
     <script>
+    //global
         const NF_CTF_FLAG = "NF{debuggers_see_more}";
         const output = document.getElementById("output");
         const cmdInput = document.getElementById("cmd");
@@ -273,6 +294,7 @@
         const terminal = document.getElementById("terminal");
         const mobileBtn = document.getElementById("mobile-keyboard-btn");
 
+        let commandRunning = false;
         let mode = "boot";
         let isBooting = true;
         const history = [];
@@ -291,15 +313,15 @@
         const data = {
             help: `
 Available commands:
-      help          - Show this help message
-      whoami        - Display user information
-      resume        - Show resume
-      skills        - List technical skills
-      projects      - Display projects
-      contact       - Contact information
-      snake         - Play snake game
-      ping <target> - Ping a target
-      clear         - Clear screen
+          help          - Show this help message
+          whoami        - Display user information
+          resume        - Show resume
+          skills        - List technical skills
+          projects      - Display projects
+          contact       - Contact information
+          snake         - Play snake game
+          ping <target> - Ping a target
+          clear         - Clear screen
 `,
             whoami: `
 Paramdeep Singh
@@ -315,15 +337,15 @@ credential access research, and stealthy C# utilities.
 `,
             skills: `
 Languages:
-      C / C++
-      C#
-      Python
-      PowerShell
+          C / C++
+          C#
+          Python
+          PowerShell
 
 Security:
-      Windows Internals
-      LSASS
-      Malware Evasion
+          Windows Internals
+          LSASS
+          Malware Evasion
 `,
             projects: `
 • LSASS Dump Monitor (C#)
@@ -1045,6 +1067,7 @@ kaspersky-service.exe      24288   Console               5,780 K`,
 
         /* ---------------- MAIN SHELL ---------------- */
         cmdInput.addEventListener("keydown", async e => {
+            if (commandRunning) return;
             if (mode !== "shell" || isBooting) return;
 
             // TAB COMPLETION
@@ -1076,6 +1099,7 @@ kaspersky-service.exe      24288   Console               5,780 K`,
             }
 
             if (e.key === "Enter") {
+                commandRunning = true;
                 const input = cmdInput.value.trim();
                 if (input) {
                     print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
@@ -1156,11 +1180,14 @@ kaspersky-service.exe      24288   Console               5,780 K`,
                     (command === "taskkill" && /lsass/i.test(arg)) ||
                     (command === "kill" && arg === "lsass")
                 ) {
+                    print("");
+
                     await typeLine("Attempting to access LSASS...");
                     await loadingDots("Verifying process integrity", 4, 600);
                     await typeLine("Critical system process.");
                     await typeLine("Termination not permitted.");
                     await sleep(500);
+
                     print("");
                     print("[WARNING]");
                     print("");
@@ -1213,7 +1240,7 @@ kaspersky-service.exe      24288   Console               5,780 K`,
                         print(`\nDid you mean: ${suggestion}?`);
                     }
                 }
-
+                commandRunning = false;
                 cmdInput.value = "";
             }
         });
@@ -1290,6 +1317,6 @@ kaspersky-service.exe      24288   Console               5,780 K`,
             lastInspectorState = isOpen;
         }, 1000);
         boot();
-    </script>
+    </script> <script src="mobile.js"></script>
 </body>
 </html>
