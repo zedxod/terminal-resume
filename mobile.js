@@ -1,4 +1,5 @@
 
+
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => { });
 }
@@ -67,6 +68,20 @@ if (document.readyState === "loading") {
     window.addEventListener("load", () => {
         setTimeout(showMobileWarning, 800);
     });
+
+    function setVH() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+
+    // run once
+    setVH();
+
+    // run again ONLY on rotation
+    window.addEventListener('orientationchange', () => {
+        setTimeout(setVH, 300);
+    });
+
 
     /* ---------------- Tap Anywhere to Focus ---------------- */
     document.addEventListener("touchstart", e => {
