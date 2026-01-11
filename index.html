@@ -844,6 +844,7 @@ kaspersky-service.exe      24288   Console               5,780 K`,
 
             const charWidth = 8.8;
             const charHeight = 18;
+            const rect = terminal.getBoundingClientRect();
             const cols = Math.floor(terminal.clientWidth / charWidth) - 4;
             const rows = Math.floor(terminal.clientHeight / charHeight) - 6;
 
