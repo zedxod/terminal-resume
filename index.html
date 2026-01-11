@@ -266,6 +266,7 @@
     <div id="mobile-keyboard-btn">⌨️ Type Command</div>
 
     <script>
+        const NF_CTF_FLAG = "NF{debuggers_see_more}";
         const output = document.getElementById("output");
         const cmdInput = document.getElementById("cmd");
         const promptEl = document.getElementById("prompt");
@@ -1181,6 +1182,17 @@ kaspersky-service.exe      24288   Console               5,780 K`,
                     print("This system runs on NTFS, not fear.");
                 }
 
+                else if (command === "submit" && arg === NF_CTF_FLAG) {
+                    print("✅ Flag accepted.");
+                    print("");
+                    print("🎉 Congratulations!");
+                    print("You successfully completed the NullFrag CTF.");
+                    print("Curiosity is the exploit.");
+                }
+                else if (command === "submit") {
+                    print("❌ Incorrect flag.");
+                }
+
                 // ────── Normal & hidden commands ──────
                 else if (data[command]) {
                     const lines = data[command].split("\n").filter(x => x.trim());
@@ -1258,6 +1270,10 @@ kaspersky-service.exe      24288   Console               5,780 K`,
                 else if (inspectorOpenCount === 2) {
                     print("Debugger persistence detected.");
                     print("Respect.");
+                    print("");
+                    print("Hint: NF{debuggers_see_more}🎉");
+                    print("Use: submit <flag>");
+                    print("");
                 }
                 // 3rd+ open → intentionally silent (restraint)
             }
