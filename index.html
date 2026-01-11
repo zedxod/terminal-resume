@@ -682,12 +682,120 @@ GitHub : https://github.com/zedxod
                 zIndex: "2147483647",
                 pointerEvents: "none",
                 textAlign: "center",
-                boxShadow: "0 0 14px rgba(0,0,0,0.9)"
+                boxShadow: "0 0 14px rgba(0,0,0,0.9)",
+                opacity: "1",
+                transition: "opacity 0.6s ease"
             });
 
             document.documentElement.appendChild(warn);
+            setTimeout(() => {
+                warn.style.opacity = "0";
+                setTimeout(() => warn.remove(), 700);
+            }, 6000);
         }
 
+        function isMobileDevice() {
+            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        }
+
+        let joystickEl = null;
+
+        function createSnakeJoystick(onDirection) {
+            if (!isMobileDevice()) return;
+
+            joystickEl = document.createElement("div");
+            joystickEl.id = "nf-joystick";
+
+            Object.assign(joystickEl.style, {
+                position: "fixed",
+                bottom: "90px",
+                left: "24px",
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                background: "rgba(0,0,0,0.6)",
+                border: "2px solid #33ff33",
+                zIndex: "2147483647",
+                touchAction: "none"
+            });
+
+            const stick = document.createElement("div");
+            Object.assign(stick.style, {
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                width: "46px",
+                height: "46px",
+                borderRadius: "50%",
+                background: "#33ff33",
+                transform: "translate(-50%, -50%)",
+                opacity: "0.85"
+            });
+
+            joystickEl.appendChild(stick);
+            document.documentElement.appendChild(joystickEl);
+
+            let startX = 0, startY = 0;
+
+            joystickEl.addEventListener("touchstart", e => {
+                const t = e.touches[0];
+                startX = t.clientX;
+                startY = t.clientY;
+            });
+
+            joystickEl.addEventListener("touchmove", e => {
+                e.preventDefault();
+                const t = e.touches[0];
+                const dx = t.clientX - startX;
+                const dy = t.clientY - startY;
+
+                const absX = Math.abs(dx);
+                const absY = Math.abs(dy);
+
+                if (absX > absY) {
+                    onDirection(dx > 0 ? "right" : "left");
+                } else {
+                    onDirection(dy > 0 ? "down" : "up");
+                }
+
+                stick.style.transform =
+                    `translate(calc(-50% + ${dx * 0.3}px), calc(-50% + ${dy * 0.3}px))`;
+            });
+
+            joystickEl.addEventListener("touchend", () => {
+                stick.style.transform = "translate(-50%, -50%)";
+            });
+        }
+
+        let exitBtn = null;
+
+        function createSnakeExitButton(onExit) {
+            if (!isMobileDevice()) return;
+
+            exitBtn = document.createElement("div");
+            exitBtn.textContent = "⏹ Exit Game";
+
+            Object.assign(exitBtn.style, {
+                position: "fixed",
+                bottom: "24px",
+                left: "24px",
+                background: "#33ff33",
+                color: "#000",
+                padding: "12px 18px",
+                borderRadius: "8px",
+                fontFamily: "Consolas, monospace",
+                fontWeight: "bold",
+                zIndex: "2147483647",
+                userSelect: "none"
+            });
+
+            exitBtn.addEventListener("touchstart", e => {
+                e.preventDefault();
+                onExit();
+            });
+
+            document.documentElement.appendChild(exitBtn);
+        }
 
         /* ---------------- SNAKE GAME ---------------- */
         function startSnake() {
@@ -709,6 +817,19 @@ GitHub : https://github.com/zedxod
             let snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
             let direction = { x: 1, y: 0 };
             let nextDirection = direction;
+
+            if (isMobileDevice()) {
+                createSnakeJoystick(dir => {
+                    if (dir === "up" && direction.y !== 1) nextDirection = { x: 0, y: -1 };
+                    if (dir === "down" && direction.y !== -1) nextDirection = { x: 0, y: 1 };
+                    if (dir === "left" && direction.x !== 1) nextDirection = { x: -1, y: 0 };
+                    if (dir === "right" && direction.x !== -1) nextDirection = { x: 1, y: 0 };
+                });
+            }
+            if (isMobileDevice()) {
+                createSnakeExitButton(exitSnake);
+            }
+
             let food = getRandomFoodPosition();
             let score = 0;
             let highScore = parseInt(localStorage.getItem("nf_snake_hs") || "0", 10);
@@ -870,6 +991,14 @@ GitHub : https://github.com/zedxod
                 cmdInput.disabled = false;
                 cmdInput.focus();
                 mode = "shell";
+                if (joystickEl) {
+                    joystickEl.remove();
+                    joystickEl = null;
+                }
+                if (exitBtn) {
+                    exitBtn.remove();
+                    exitBtn = null;
+                }
             }
 
             document.addEventListener("keydown", handleKey);
