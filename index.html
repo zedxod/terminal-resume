@@ -2,286 +2,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>NullFrag — Command Prompt</title>
-<link rel="icon" type="image/png" href="assets/icons/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NullFrag — Command Prompt</title>
+    <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 
-<style>
-:root {
-  --green:#33ff33;
-  --bg:#000;
-  --border:#2b2b2b;
-  --titlebar:#111;
-}
-body{
-  background:#111;
-  font-family:Consolas,"Lucida Console",monospace;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  margin:0;
-  padding:0;
-}
-#cmd-window{
-  border-radius: 8px;
-  overflow: hidden;
-  width:900px;
-  max-width:95%;
-  background:var(--bg);
-  border:2px solid var(--border);
-  box-shadow:0 0 30px rgba(0,0,0,.8);
-}
-/* macOS title bar */
-#title-bar {
-  height: 34px;
-  background: linear-gradient(#1e1e1e, #161616);
-  border-bottom: 1px solid #0f0f0f;
-  display: flex;
-  align-items: center;
-  position: relative;
-  user-select: none;
-}
+    <style>
+        :root {
+            --green: #33ff33;
+            --bg: #000;
+            --border: #2b2b2b;
+            --titlebar: #111;
+        }
 
-/* Traffic lights */
-.window-buttons {
-  position: absolute;
-  left: 12px;
-  display: flex;
-  gap: 8px;
-}
+        body {
+            background: #111;
+            font-family: Consolas,"Lucida Console",monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
 
-.btn {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
+        #cmd-window {
+            border-radius: 8px;
+            overflow: hidden;
+            width: 900px;
+            max-width: 95%;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            box-shadow: 0 0 30px rgba(0,0,0,.8);
+        }
+        /* macOS title bar */
+        #title-bar {
+            height: 34px;
+            background: linear-gradient(#1e1e1e, #161616);
+            border-bottom: 1px solid #0f0f0f;
+            display: flex;
+            align-items: center;
+            position: relative;
+            user-select: none;
+        }
 
-.close { background: #ff5f56; }
-.minimize { background: #ffbd2e; }
-.maximize { background: #27c93f; }
+        /* Traffic lights */
+        .window-buttons {
+            position: absolute;
+            left: 12px;
+            display: flex;
+            gap: 8px;
+        }
 
-/* Tab bar */
-.tab-bar {
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+        .btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
 
-/* Tabs */
-.tab {
-  background: #2a2a2a;
-  color: #d0d0d0;
-  padding: 5px 14px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.04),
-    0 1px 1px rgba(0,0,0,0.6);
-}
+        .close {
+            background: #ff5f56;
+        }
 
-.tab.active {
-  background: #303030;
-}
+        .minimize {
+            background: #ffbd2e;
+        }
 
-/* + button */
-.tab-add {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background: #1f1f1f;
-  color: #aaa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  pointer-events: none;
-  cursor: pointer;
-}
+        .maximize {
+            background: #27c93f;
+        }
 
-#title-bar:hover .tab-add {
-  background: #2a2a2a;
-  color: rgba(255,255,255,0.85);
-}
+        /* Tab bar */
+        .tab-bar {
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-.window-buttons {
-  opacity: 0.85;
-  position: absolute;
-  left: 12px;
-  display: flex;
-  gap: 8px;
-}
+        /* Tabs */
+        .tab {
+            background: #2a2a2a;
+            color: #d0d0d0;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 1px rgba(0,0,0,0.6);
+        }
 
-.btn {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
+            .tab.active {
+                background: #303030;
+            }
 
-.close {
-  background: #ff5f56;
-}
+        /* + button */
+        .tab-add {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: #1f1f1f;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            pointer-events: none;
+            cursor: pointer;
+        }
 
-.minimize {
-  background: #ffbd2e;
-}
+        #title-bar:hover .tab-add {
+            background: #2a2a2a;
+            color: rgba(255,255,255,0.85);
+        }
 
-.maximize {
-  background: #27c93f;
-}
+        .window-buttons {
+            opacity: 0.85;
+            position: absolute;
+            left: 12px;
+            display: flex;
+            gap: 8px;
+        }
 
-/* Subtle macOS hover behavior */
-#title-bar:hover .close {
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
-}
-#title-bar:hover .minimize {
-  opacity: 1;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
-}
-#title-bar:hover .maximize {
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
-}
+        .btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
 
-.title-text {
-  pointer-events: none;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  opacity: 0.9;
-}
+        .close {
+            background: #ff5f56;
+        }
 
-#terminal{
-  color:var(--green);
-  padding:15px;
-  height:500px;
-  overflow-y:auto;   
-  overflow-x:hidden; 
-}
+        .minimize {
+            background: #ffbd2e;
+        }
 
-#output{white-space:pre;}
-.prompt-line{display:flex;}
-.prompt{margin-right:6px;}
-input{
-  background:transparent;
-  border:none;
-  outline:none;
-  color:var(--green);
-  font-family:inherit;
-  font-size:1em;
-  flex:1;
-  caret-color:var(--green);
-}
+        .maximize {
+            background: #27c93f;
+        }
 
-/* Mobile Support Button */
-#mobile-keyboard-btn {
-  display:none;
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:var(--green);
-  color:#000;
-  padding:12px 20px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-  box-shadow:0 4px 12px rgba(51,255,51,0.3);
-  z-index:1000;
-  user-select:none;
-}
-#mobile-keyboard-btn:active {
-  transform:scale(0.95);
-}
+        /* Subtle macOS hover behavior */
+        #title-bar:hover .close {
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+        }
 
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  #cmd-window {
-    width:100%;
-    max-width:100%;
-    height:100vh;
-    border:none;
-  }
-  #terminal {
-    height:calc(100vh - 40px);
-    font-size:14px;
-  }
-  #mobile-keyboard-btn {
-    display:block;
-  }
-}
-</style>
-<link rel="stylesheet" href="background.css">
+        #title-bar:hover .minimize {
+            opacity: 1;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+        }
+
+        #title-bar:hover .maximize {
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+        }
+
+        .title-text {
+            pointer-events: none;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            opacity: 0.9;
+        }
+
+        #terminal {
+            color: var(--green);
+            padding: 15px;
+            height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        #output {
+            white-space: pre;
+        }
+
+        .prompt-line {
+            display: flex;
+        }
+
+        .prompt {
+            margin-right: 6px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--green);
+            font-family: inherit;
+            font-size: 1em;
+            flex: 1;
+            caret-color: var(--green);
+        }
+
+        /* Mobile Support Button */
+        #mobile-keyboard-btn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--green);
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(51,255,51,0.3);
+            z-index: 1000;
+            user-select: none;
+        }
+
+            #mobile-keyboard-btn:active {
+                transform: scale(0.95);
+            }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            #cmd-window {
+                width: 100%;
+                max-width: 100%;
+                height: 100vh;
+                border: none;
+            }
+
+            #terminal {
+                height: calc(100vh - 40px);
+                font-size: 14px;
+            }
+
+            #mobile-keyboard-btn {
+                display: block;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="background.css">
 </head>
 
 <body>
-<div id="cmd-window">
-    <div id="title-bar">
-        <div class="window-buttons">
-          <div class="btn close"></div>
-          <div class="btn minimize"></div>
-          <div class="btn maximize"></div>
+    <div id="cmd-window">
+        <div id="title-bar">
+            <div class="window-buttons">
+                <div class="btn close"></div>
+                <div class="btn minimize"></div>
+                <div class="btn maximize"></div>
+            </div>
+
+            <div class="tab-bar" id="tabBar">
+                <div class="tab active">Command Prompt</div>
+                <div class="tab-add" id="addTab">+</div>
+            </div>
         </div>
-      
-        <div class="tab-bar" id="tabBar">
-          <div class="tab active">Command Prompt</div>
-          <div class="tab-add" id="addTab">+</div>
+
+
+        <div id="terminal">
+            <div id="output"></div>
+            <div class="prompt-line" id="prompt" style="display:none">
+                <span class="prompt">C:\Users\NullFrag&gt;</span>
+                <input id="cmd" disabled autofocus>
+            </div>
         </div>
     </div>
-      
 
-  <div id="terminal">
-    <div id="output"></div>
-    <div class="prompt-line" id="prompt" style="display:none">
-      <span class="prompt">C:\Users\NullFrag&gt;</span>
-      <input id="cmd" disabled autofocus>
-    </div>
-  </div>
-</div>
+    <!-- Mobile keyboard button -->
+    <div id="mobile-keyboard-btn">⌨️ Type Command</div>
 
-<!-- Mobile keyboard button -->
-<div id="mobile-keyboard-btn">⌨️ Type Command</div>
+    <script>
+        const output = document.getElementById("output");
+        const cmdInput = document.getElementById("cmd");
+        const promptEl = document.getElementById("prompt");
+        const terminal = document.getElementById("terminal");
+        const mobileBtn = document.getElementById("mobile-keyboard-btn");
 
-<script>
-const output = document.getElementById("output");
-const cmdInput = document.getElementById("cmd");
-const promptEl = document.getElementById("prompt");
-const terminal = document.getElementById("terminal");
-const mobileBtn = document.getElementById("mobile-keyboard-btn");
+        let mode = "boot";
+        let isBooting = true;
+        const history = [];
+        let historyIndex = -1;
+        let currentDir = "";
+        let skipTyping = false;
 
-let mode = "boot";
-let isBooting = true;
-const history = [];
-let historyIndex = -1;
-let currentDir = "";
-let skipTyping = false;
+        const promptRoot = "C:\\Users\\NullFrag>";
+        const promptResume = "C:\\Users\\NullFrag\\resume>";
 
-const promptRoot = "C:\\Users\\NullFrag>";
-const promptResume = "C:\\Users\\NullFrag\\resume>";
+        // Fake filesystem contents
+        const filesInRoot = ["resume"];
+        const filesInResume = ["resume.txt"];
 
-// Fake filesystem contents
-const filesInRoot = ["resume"];
-const filesInResume = ["resume.txt"];
-
-/* ---------------- COMMAND DATA ---------------- */
-const data = {
-  help: `
+        /* ---------------- COMMAND DATA ---------------- */
+        const data = {
+            help: `
 Available commands:
-  help          - Show this help message
-  whoami        - Display user information
-  resume        - Show resume
-  skills        - List technical skills
-  projects      - Display projects
-  contact       - Contact information
-  snake         - Play snake game
-  ping <target> - Ping a target
-  clear         - Clear screen
+      help          - Show this help message
+      whoami        - Display user information
+      resume        - Show resume
+      skills        - List technical skills
+      projects      - Display projects
+      contact       - Contact information
+      snake         - Play snake game
+      ping <target> - Ping a target
+      clear         - Clear screen
 `,
-  whoami: `
+            whoami: `
 Paramdeep Singh
 Security Researcher / Software Engineer
 `,
-  resume: `
+            resume: `
 NAME     : Paramdeep Singh
 ROLE     : Security Researcher / Software Engineer
 
@@ -289,719 +312,755 @@ SUMMARY:
 Focused on Windows internals, low-level tooling,
 credential access research, and stealthy C# utilities.
 `,
-  skills: `
+            skills: `
 Languages:
-  C / C++
-  C#
-  Python
-  PowerShell
+      C / C++
+      C#
+      Python
+      PowerShell
 
 Security:
-  Windows Internals
-  LSASS
-  Malware Evasion
+      Windows Internals
+      LSASS
+      Malware Evasion
 `,
-  projects: `
+            projects: `
 • LSASS Dump Monitor (C#)
 • In-memory Obfuscation Engine
 • Native Win32 Dump Utility
 `,
-  contact: `
+            contact: `
 Email  : admin@nullfrag.online
 GitHub : https://github.com/zedxod
 `,
 
-  // Hidden / easter egg commands
-  ver:      "Microsoft Windows [Version 10.0.19045.4046 (NullFrag Edition)]",
-  tasklist: "NullFrag    1337 Console                 1 K   Running",
-  sudo:     "sudo: effective uid is still 0, nice try tho ;)"
-};
+            // Hidden / easter egg commands
+            ver: "Microsoft Windows [Version 10.0.19045.4046 (NullFrag Edition)]",
+            tasklist: "NullFrag    1337 Console                 1 K   Running",
+            sudo: "sudo: effective uid is still 0, nice try tho ;)"
+        };
 
-const hiddenCommands = ["ver", "tasklist", "sudo", "traceroute", "date", "time", "matrix", "hack", "tree", "dir", "ls", "cd", "cat"];
+        const hiddenCommands = ["ver", "tasklist", "sudo", "traceroute", "date", "time", "matrix", "hack", "tree", "dir", "ls", "cd", "cat"];
 
-/* ---------------- UTIL ---------------- */
-function print(line = "") {
-  output.textContent += line + "\n";
-  terminal.scrollTop = terminal.scrollHeight;
-}
-
-// Blocking typing for boot sequence only
-async function typeLine(text, delay = 14) {
-  if (!text) { print(""); return; }
-  if (skipTyping) {
-    print(text);
-    skipTyping = false;
-    return;
-  }
-  let buf = "";
-  for (const c of text) {
-    buf += c;
-    output.textContent = output.textContent.replace(/[^\n]*$/, buf);
-    await new Promise(r => setTimeout(r, delay));
-  }
-  print("");
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function updatePrompt() {
-  if (isBooting) return;
-  const promptSpan = promptEl.querySelector(".prompt");
-  promptSpan.textContent = currentDir ? promptResume : promptRoot;
-}
-
-function disableTerminalScroll() {
-  terminal.style.overflowY = "hidden";
-}
-
-function enableTerminalScroll() {
-  terminal.style.overflowY = "auto";
-}
-
-
-/* ---------------- TAB COMPLETION ---------------- */
-function getTabCompletion(input) {
-  const commands = [...Object.keys(data), "snake", "clear", "ping", "traceroute", "date", "time", 
-                    "matrix", "hack", "tree", "dir", "cd", "cat", "show", ...hiddenCommands];
-  const matches = commands.filter(cmd => cmd.startsWith(input));
-  return matches;
-}
-
-/* ---------------- COMMAND SUGGESTIONS ---------------- */
-function findSimilarCommand(input) {
-  const allCommands = [...Object.keys(data), "snake", "clear", "ping", "traceroute", "date", 
-                       "time", "matrix", "hack", "tree", "dir", "cd", "cat"];
-  
-  const similar = allCommands.filter(cmd => {
-    const minLen = Math.min(cmd.length, input.length);
-    if (minLen < 3) return cmd.startsWith(input.substring(0, 2));
-    return cmd.includes(input.substring(0, 3)) || input.includes(cmd.substring(0, 3));
-  });
-  
-  return similar[0];
-}
-
-/* ---------------- FAKE FILESYSTEM COMMANDS ---------------- */
-
-function dirCommand() {
-  const inResume = currentDir === "resume";
-  const path = `C:\\Users\\NullFrag${inResume ? "\\resume" : ""}`;
-
-  // Volume info (shown every time like CMD)
-  print(" Volume in drive C has no label.");
-  print(" Volume Serial Number is CA20-5461");
-  print("");
-  print(` Directory of ${path}`);
-  print("");
-
-  const now = new Date();
-
-  const formatDate = d =>
-    d.toLocaleDateString("en-GB").replace(/\//g, "-");
-
-  const formatTime = d =>
-    d.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    });
-
-  let fileCount = 0;
-  let dirCount = 0;
-  let totalBytes = 0;
-
-  // . and .. entries
-  print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          .`);
-  print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          ..`);
-  dirCount += 2;
-
-  const items = inResume ? filesInResume : filesInRoot;
-
-  items.forEach(item => {
-    if (item.includes(".")) {
-      const size = (Math.floor(Math.random() * 8) + 1) * 1024;
-      totalBytes += size;
-      fileCount++;
-
-      print(
-        `${formatDate(now)}  ${formatTime(now)}           ${size
-          .toString()
-          .padStart(10, " ")} ${item}`
-      );
-    } else {
-      dirCount++;
-      print(
-        `${formatDate(now)}  ${formatTime(now)}    <DIR>          ${item}`
-      );
-    }
-  });
-
-  print(
-    `               ${fileCount} File(s) ${totalBytes
-      .toLocaleString()
-      .padStart(14, " ")} bytes`
-  );
-  print(
-    `               ${dirCount} Dir(s)  151,681,032,192 bytes free`
-  );
-}
-
-function cdCommand(arg) {
-  if (!arg || arg === ".") return;
-
-  if (arg === "..") {
-    currentDir = "";
-    updatePrompt();
-    return;
-  }
-
-  if (arg === "resume" && currentDir === "") {
-    currentDir = "resume";
-    updatePrompt();
-    return;
-  }
-
-  print("The system cannot find the path specified.");
-}
-
-function catCommand(arg) {
-  if (!arg) {
-    print("The system cannot find the file specified.");
-    return;
-  }
-
-  if (currentDir !== "resume") {
-    print("The system cannot find the file specified.");
-    return;
-  }
-
-  if (arg === "resume.txt") {
-    print("");
-    data.resume
-      .split("\n")
-      .filter(l => l.trim())
-      .forEach(line => print(line));
-  } else {
-    print("The system cannot find the file specified.");
-  }
-}
-
-
-/* ---------------- PING COMMAND ---------------- */
-async function pingCommand(target){
-  print(`Pinging ${target} with 32 bytes of data:`);
-
-  const times=[];
-
-  for(let i=0;i<4;i++){
-    const t=3+Math.floor(Math.random()*3);
-    times.push(t);
-    await sleep(700);
-    print(`Reply from ${target}: bytes=32 time=${t}ms TTL=118`);
-  }
-
-  const min=Math.min(...times);
-  const max=Math.max(...times);
-  const avg=Math.round(times.reduce((a,b)=>a+b,0)/times.length);
-
-  print("");
-  print(`Ping statistics for ${target}:`);
-  print(`    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),`);
-  print(`Approximate round trip times in milli-seconds:`);
-  print(`    Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms`);
-}
-
-/* ---------------- TRACEROUTE COMMAND ---------------- */
-async function tracerouteCommand(target) {
-  print(`Tracing route to ${target} over a maximum of 10 hops:\n`);
-  
-  const hops = [
-    "192.168.1.1",
-    "10.0.0.1", 
-    "172.16.254.1",
-    "203.0.113.1",
-    target
-  ];
-  
-  for (let i = 0; i < hops.length; i++) {
-    await sleep(600);
-    const ms1 = 1 + Math.floor(Math.random() * 5);
-    const ms2 = ms1 + Math.floor(Math.random() * 3);
-    const ms3 = ms2 + Math.floor(Math.random() * 2);
-    print(`  ${(i + 1).toString().padStart(2)}    ${ms1} ms    ${ms2} ms    ${ms3} ms    ${hops[i]}`);
-  }
-  print("\nTrace complete.");
-}
-
-/* ---------------- DATE/TIME COMMAND ---------------- */
-function dateTimeCommand() {
-  const now = new Date();
-  print(`The current date is: ${now.toDateString()}`);
-  print(`The current time is: ${now.toLocaleTimeString()}`);
-}
-
-/* ---------------- ENHANCED EASTER EGGS ---------------- */
-async function matrixEffect() {
-  const chars = "ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01";
-  print("\n[ENTERING THE MATRIX...]\n");
-  await sleep(500);
-  
-  for (let i = 0; i < 12; i++) {
-    let line = "";
-    for (let j = 0; j < 70; j++) {
-      line += chars[Math.floor(Math.random() * chars.length)];
-    }
-    await typeLine(line, 1);
-  }
-  
-  await sleep(800);
-  print("\n[CONNECTION TERMINATED]\n");
-}
-
-async function hackEffect() {
-  print("\n[INITIALIZING HACK SEQUENCE...]");
-  await sleep(500);
-  await loadingDots("Bypassing firewall", 3, 300);
-  await loadingDots("Cracking encryption", 3, 300);
-  await loadingDots("Accessing mainframe", 3, 300);
-  print("\n[ACCESS GRANTED]");
-  print("Just kidding! This is just a portfolio site ;)");
-}
-
-async function treeCommand() {
-  print("\nC:\\USERS\\NULLFRAG");
-  await sleep(200);
-  print("│");
-  print("├───resume");
-  await sleep(100);
-  print("│   └───resume.txt");
-  await sleep(100);
-  print("│");
-  print("├───projects");
-  await sleep(100);
-  print("│   ├───lsass-monitor.exe");
-  print("│   ├───obfuscator.dll");
-  print("│   └───win32-dump.exe");
-  await sleep(100);
-  print("│");
-  print("└───skills");
-  await sleep(100);
-  print("    ├───languages.txt");
-  print("    └───security.txt");
-  print("");
-}
-
-async function loadingDots(text, cycles = 4, interval = 400) {
-  const start = output.textContent.length;
-  let dots = 0;
-
-  for (let i = 0; i < cycles * 2; i++) {
-    dots = (dots + 1) % 4;
-    output.textContent =
-      output.textContent.slice(0, start) +
-      text +
-      ".".repeat(dots) +
-      "\n";
-
-    terminal.scrollTop = terminal.scrollHeight;
-    await sleep(interval);
-  }
-}
-
-/* ---------------- BOOT ---------------- */
-async function boot() {
-  await typeLine("Microsoft Windows [Version 10.0.19045.4046]");
-  await typeLine("(c) Microsoft Corporation. All rights reserved.");
-  await typeLine("Initializing secure environment...");
-  await loadingDots("Verifying hardware integrity", 3, 400);
-  await loadingDots("Loading modules", 4, 350);         
-  await loadingDots("Decrypting session keys", 4, 350); 
-  await typeLine("Access granted.");
-  await sleep(600);
-  await typeLine("Welcome to Secret Lab");
-  print("");
-  await typeLine("Type 'help' to continue.");
-  isBooting = false;
-  mode = "shell";
-  promptEl.style.display = "flex";
-  cmdInput.disabled = false;
-  updatePrompt();
-  cmdInput.focus();
-}
-
-/* ---------------- SNAKE GAME ---------------- */
-function startSnake() {
-  mode = "snake";
-  disableTerminalScroll();
-  cmdInput.disabled = true;
-  promptEl.style.display = "none";
-  output.textContent = "";
-
-  const GAME_SPEED = 130;
-  const SPEEDUP_EVERY = 10;
-  const MIN_SPEED = 70;
-
-  const charWidth = 8.8;
-  const charHeight = 18;
-  const cols = Math.floor(terminal.clientWidth / charWidth) - 4;
-  const rows = Math.floor(terminal.clientHeight / charHeight) - 6;
-
-  let snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
-  let direction = { x: 1, y: 0 };
-  let nextDirection = direction;
-  let food = getRandomFoodPosition();
-  let score = 0;
-  let highScore = parseInt(localStorage.getItem("nf_snake_hs") || "0", 10);
-  let gameRunning = true;
-  let gamePaused = false;
-  let gameInterval = null;
-
-  const headChars = {
-    '1,0':  '►',
-    '-1,0': '◄',
-    '0,-1': '▲',
-    '0,1':  '▼'
-  };
-
-  function getRandomFoodPosition() {
-    let pos;
-    do {
-      pos = {
-        x: 1 + Math.floor(Math.random() * (cols - 2)),
-        y: 1 + Math.floor(Math.random() * (rows - 2))
-      };
-    } while (snake.some(s => s.x === pos.x && s.y === pos.y));
-    return pos;
-  }
-
-  function drawCenteredPopup(board, gameOver, gamePaused) {
-    if (!gameOver && !gamePaused) return;
-
-    const midRow = Math.floor(rows / 2);
-    const status = gameOver ? "GAME OVER!" : "PAUSED";
-    const instruction = gameOver ? "Press Q to quit" : "Press P/SPACE to resume";
-
-    const boxWidth = Math.max(status.length, instruction.length) + 4;
-    const boxLeft = Math.floor((cols - boxWidth) / 2);
-
-    for (let r = midRow - 2; r <= midRow + 2; r++) {
-      if (r >= 0 && r < rows) {
-        for (let c = boxLeft - 1; c < boxLeft + boxWidth + 1; c++) {
-          if (c >= 0 && c < cols) board[r][c] = " ";
+        /* ---------------- UTIL ---------------- */
+        function print(line = "") {
+            output.textContent += line + "\n";
+            terminal.scrollTop = terminal.scrollHeight;
         }
-      }
-    }
 
-    if (midRow - 2 >= 0 && midRow - 2 < rows) {
-      board[midRow - 2][boxLeft - 1] = "┌";
-      for (let c = boxLeft; c < boxLeft + boxWidth; c++) {
-        board[midRow - 2][c] = "─";
-      }
-      board[midRow - 2][boxLeft + boxWidth] = "┐";
-    }
+        // Blocking typing for boot sequence only
+        async function typeLine(text, delay = 14) {
+            if (!text) { print(""); return; }
+            if (skipTyping) {
+                print(text);
+                skipTyping = false;
+                return;
+            }
+            let buf = "";
+            for (const c of text) {
+                buf += c;
+                output.textContent = output.textContent.replace(/[^\n]*$/, buf);
+                await new Promise(r => setTimeout(r, delay));
+            }
+            print("");
+        }
 
-    const statusPad = Math.floor((boxWidth - status.length) / 2);
-    for (let i = 0; i < status.length; i++) {
-      board[midRow - 1][boxLeft + statusPad + i] = status[i];
-    }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
-    const instrPad = Math.floor((boxWidth - instruction.length) / 2);
-    for (let i = 0; i < instruction.length; i++) {
-      board[midRow][boxLeft + instrPad + i] = instruction[i];
-    }
+        function updatePrompt() {
+            if (isBooting) return;
+            const promptSpan = promptEl.querySelector(".prompt");
+            promptSpan.textContent = currentDir ? promptResume : promptRoot;
+        }
 
-    if (midRow + 1 >= 0 && midRow + 1 < rows) {
-      board[midRow + 1][boxLeft - 1] = "└";
-      for (let c = boxLeft; c < boxLeft + boxWidth; c++) {
-        board[midRow + 1][c] = "─";
-      }
-      board[midRow + 1][boxLeft + boxWidth] = "┘";
-    }
-  }
+        function disableTerminalScroll() {
+            terminal.style.overflowY = "hidden";
+        }
 
-  function drawBoard(gameOver = false) {
-    let board = Array(rows).fill().map(() => Array(cols).fill(" "));
+        function enableTerminalScroll() {
+            terminal.style.overflowY = "auto";
+        }
 
-    snake.slice(1).forEach(seg => {
-      board[seg.y][seg.x] = "█";
-    });
 
-    const headKey = `${direction.x},${direction.y}`;
-    board[snake[0].y][snake[0].x] = headChars[headKey] || "█";
+        /* ---------------- TAB COMPLETION ---------------- */
+        function getTabCompletion(input) {
+            const commands = [...Object.keys(data), "snake", "clear", "ping", "traceroute", "date", "time",
+                "matrix", "hack", "tree", "dir", "cd", "cat", "show", ...hiddenCommands];
+            const matches = commands.filter(cmd => cmd.startsWith(input));
+            return matches;
+        }
 
-    board[food.y][food.x] = "♦";
+        /* ---------------- COMMAND SUGGESTIONS ---------------- */
+        function findSimilarCommand(input) {
+            const allCommands = [...Object.keys(data), "snake", "clear", "ping", "traceroute", "date",
+                "time", "matrix", "hack", "tree", "dir", "cd", "cat"];
 
-    drawCenteredPopup(board, gameOver, gamePaused);
+            const similar = allCommands.filter(cmd => {
+                const minLen = Math.min(cmd.length, input.length);
+                if (minLen < 3) return cmd.startsWith(input.substring(0, 2));
+                return cmd.includes(input.substring(0, 3)) || input.includes(cmd.substring(0, 3));
+            });
 
-    let text = "╔" + "═".repeat(cols) + "╗\n";
+            return similar[0];
+        }
 
-    board.forEach(row => {
-      text += "║" + row.join("") + "║\n";
-    });
+        /* ---------------- FAKE FILESYSTEM COMMANDS ---------------- */
 
-    text += "╚" + "═".repeat(cols) + "╝\n";
+        function dirCommand() {
+            const inResume = currentDir === "resume";
+            const path = `C:\\Users\\NullFrag${inResume ? "\\resume" : ""}`;
 
-    const scoreText = `Score: ${score.toString().padStart(4,'0')}  High: ${highScore.toString().padStart(4,'0')}`;
-    const scorePad = Math.floor((cols + 2 - scoreText.length) / 2);
-    text += "\n" + " ".repeat(scorePad) + scoreText;
+            // Volume info (shown every time like CMD)
+            print(" Volume in drive C has no label.");
+            print(" Volume Serial Number is CA20-5461");
+            print("");
+            print(` Directory of ${path}`);
+            print("");
 
-    output.textContent = text;
-  }
+            const now = new Date();
 
-  function moveSnake() {
-    if (!gameRunning || gamePaused) return;
+            const formatDate = d =>
+                d.toLocaleDateString("en-GB").replace(/\//g, "-");
 
-    direction = nextDirection;
+            const formatTime = d =>
+                d.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true
+                });
 
-    const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+            let fileCount = 0;
+            let dirCount = 0;
+            let totalBytes = 0;
 
-    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows ||
-        snake.some((s, i) => i > 0 && s.x === head.x && s.y === head.y)) {
-      gameRunning = false;
-      drawBoard(true);
-      return;
-    }
+            // . and .. entries
+            print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          .`);
+            print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          ..`);
+            dirCount += 2;
 
-    snake.unshift(head);
+            const items = inResume ? filesInResume : filesInRoot;
 
-    if (head.x === food.x && head.y === food.y) {
-      score++;
-      if (score > highScore) {
-        highScore = score;
-        localStorage.setItem("nf_snake_hs", highScore);
-      }
-      food = getRandomFoodPosition();
+            items.forEach(item => {
+                if (item.includes(".")) {
+                    const size = (Math.floor(Math.random() * 8) + 1) * 1024;
+                    totalBytes += size;
+                    fileCount++;
 
-      if (score % SPEEDUP_EVERY === 0 && gameInterval) {
-        clearInterval(gameInterval);
-        gameInterval = setInterval(moveSnake, Math.max(MIN_SPEED, GAME_SPEED - score * 4));
-      }
-    } else {
-      snake.pop();
-    }
+                    print(
+                        `${formatDate(now)}  ${formatTime(now)}           ${size
+                            .toString()
+                            .padStart(10, " ")} ${item}`
+                    );
+                } else {
+                    dirCount++;
+                    print(
+                        `${formatDate(now)}  ${formatTime(now)}    <DIR>          ${item}`
+                    );
+                }
+            });
 
-    drawBoard();
-  }
+            print(
+                `               ${fileCount} File(s) ${totalBytes
+                    .toLocaleString()
+                    .padStart(14, " ")} bytes`
+            );
+            print(
+                `               ${dirCount} Dir(s)  151,681,032,192 bytes free`
+            );
+        }
 
-  function handleKey(e) {
-    if (mode !== "snake") return;
-    e.preventDefault();
+        function cdCommand(arg) {
+            if (!arg || arg === ".") return;
 
-    const k = e.key.toLowerCase();
+            if (arg === "..") {
+                currentDir = "";
+                updatePrompt();
+                return;
+            }
 
-    if ((k === "arrowup"    || k === "w") && direction.y !==  1) nextDirection = {x:0,  y:-1};
-    if ((k === "arrowdown"  || k === "s") && direction.y !== -1) nextDirection = {x:0,  y: 1};
-    if ((k === "arrowleft"  || k === "a") && direction.x !==  1) nextDirection = {x:-1, y: 0};
-    if ((k === "arrowright" || k === "d") && direction.x !== -1) nextDirection = {x: 1, y: 0};
+            if (arg === "resume" && currentDir === "") {
+                currentDir = "resume";
+                updatePrompt();
+                return;
+            }
 
-    if ((k === " " || k === "p") && gameRunning) {
-      gamePaused = !gamePaused;
-      drawBoard(gamePaused);
-    }
-    if (k === "q" && (!gameRunning || gamePaused)) exitSnake();
-  }
+            print("The system cannot find the path specified.");
+        }
 
-  function exitSnake() {
-    document.removeEventListener("keydown", handleKey);
-    if (gameInterval) clearInterval(gameInterval);
-    enableTerminalScroll();
-    output.textContent = "";
-    promptEl.style.display = "flex";
-    cmdInput.disabled = false;
-    cmdInput.focus();
-    mode = "shell";
-  }
+        function catCommand(arg) {
+            if (!arg) {
+                print("The system cannot find the file specified.");
+                return;
+            }
 
-  document.addEventListener("keydown", handleKey);
-  drawBoard();
-  gameInterval = setInterval(moveSnake, GAME_SPEED);
-}
+            if (currentDir !== "resume") {
+                print("The system cannot find the file specified.");
+                return;
+            }
 
-/* ---------------- GLOBAL KEY HANDLERS ---------------- */
-document.addEventListener("keydown", e => {
-  // CTRL+C to skip typing animation
-  if (e.ctrlKey && e.key === "c" && mode === "shell") {
-    skipTyping = true;
-  }
-});
+            if (arg === "resume.txt") {
+                print("");
+                data.resume
+                    .split("\n")
+                    .filter(l => l.trim())
+                    .forEach(line => print(line));
+            } else {
+                print("The system cannot find the file specified.");
+            }
+        }
 
-/* ---------------- MOBILE SUPPORT ---------------- */
-mobileBtn.addEventListener('click', () => {
-  cmdInput.focus();
-  cmdInput.click();
-});
 
-cmdInput.addEventListener('focus', () => {
-  if (window.innerWidth <= 768) {
-    mobileBtn.style.opacity = '0.3';
-  }
-});
+        /* ---------------- PING COMMAND ---------------- */
+        async function pingCommand(target) {
+            print(`Pinging ${target} with 32 bytes of data:`);
 
-cmdInput.addEventListener('blur', () => {
-  if (window.innerWidth <= 768) {
-    mobileBtn.style.opacity = '1';
-  }
-});
+            const times = [];
 
-/* ---------------- MAIN SHELL ---------------- */
-cmdInput.addEventListener("keydown", async e => {
-    if (mode !== "shell" || isBooting) return;
+            for (let i = 0; i < 4; i++) {
+                const t = 3 + Math.floor(Math.random() * 3);
+                times.push(t);
+                await sleep(700);
+                print(`Reply from ${target}: bytes=32 time=${t}ms TTL=118`);
+            }
 
-  // TAB COMPLETION
-  if (e.key === "Tab") {
-    e.preventDefault();
-    const input = cmdInput.value.trim();
-    const matches = getTabCompletion(input);
-    
-    if (matches.length === 1) {
-      cmdInput.value = matches[0];
-    } else if (matches.length > 1) {
-      print(`\nPossible commands: ${matches.join(", ")}`);
-      print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
-    }
-    return;
-  }
+            const min = Math.min(...times);
+            const max = Math.max(...times);
+            const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
 
-  // History navigation
-  if (e.key === "ArrowUp" && history.length) {
-    historyIndex = historyIndex <= 0 ? history.length - 1 : historyIndex - 1;
-    cmdInput.value = history[historyIndex];
-    e.preventDefault();
-  }
-  if (e.key === "ArrowDown" && history.length) {
-    historyIndex = historyIndex >= history.length - 1 ? -1 : historyIndex + 1;
-    cmdInput.value = historyIndex === -1 ? "" : history[historyIndex];
-    e.preventDefault();
-  }
+            print("");
+            print(`Ping statistics for ${target}:`);
+            print(`    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),`);
+            print(`Approximate round trip times in milli-seconds:`);
+            print(`    Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms`);
+        }
 
-  if (e.key === "Enter") {
-    const input = cmdInput.value.trim();
-    if (input) {
-      print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
-      history.push(input);
-      historyIndex = -1;
-    }
+        /* ---------------- TRACEROUTE COMMAND ---------------- */
+        async function tracerouteCommand(target) {
+            print(`Tracing route to ${target} over a maximum of 10 hops:\n`);
 
-    const [command, ...args] = input.split(/\s+/);
-    const arg = args.join(" ");
+            const hops = [
+                "192.168.1.1",
+                "10.0.0.1",
+                "172.16.254.1",
+                "203.0.113.1",
+                target
+            ];
 
-    if (!command) {
-      // just enter -> new line
-    }
-    else if (command === "snake") {
-      startSnake();
-    }
-    else if (command === "clear") {
-      output.textContent = "";
-    }
-    else if (command === "ping" && arg) {
-      await pingCommand(arg);
-    }
-    else if (command === "traceroute" && arg) {
-      await tracerouteCommand(arg);
-    }
-    else if (command === "date" || command === "time") {
-      dateTimeCommand();
-    }
-    else if (command === "matrix") {
-      await matrixEffect();
-    }
-    else if (command === "hack") {
-      await hackEffect();
-    }
-    else if (command === "tree") {
-      await treeCommand();
-    }
-    else if (command === "show" && arg === "hidden") {
-      print("Hidden / Easter Egg Commands:");
-      print("");
-      print("  Network & System:");
-      print("    traceroute <target> - Trace route to target");
-      print("    date                - Show current date and time");
-      print("    time                - Show current time");
-      print("    ver                 - Show Windows version");
-      print("    tasklist            - Show running processes");
-      print("");
-      print("  Fun Effects:");
-      print("    matrix              - Enter the matrix");
-      print("    hack                - Initialize hack sequence");
-      print("    tree                - Show directory tree");
-      print("    sudo                - Try sudo access");
-      print("");
-      print("  File System:");
-      print("    dir / ls            - List directory contents");
-      print("    cd <dir>            - Change directory");
-      print("    cat <file>          - Display file contents");
-    }
-    // ────── Fake filesystem commands ──────
-    else if (command === "dir" || command === "ls") {
-      if (e.shiftKey) {
-        print("dir is angry because you called him ls again...");
-      } else {
-        dirCommand();
-      }
-    }
-    else if (command === "cd") {
-      cdCommand(arg);
-    }
-    else if (command === "cat" && arg) {
-      catCommand(arg);
-    }
-    // ────── Normal & hidden commands ──────
-    else if (data[command]) {
-      const lines = data[command].split("\n").filter(x => x.trim());
-      lines.forEach(line => print(line));
-    }
-    else if (command === "whoami" && e.shiftKey) {
-      print("root@nullfrag.local # whoami");
-      print("guest");
-    }
-    else {
-      print(`'${command}' is not recognized as an internal or external command,`);
-      print("operable program or batch file.");
-      
-      // COMMAND SUGGESTIONS
-      const suggestion = findSimilarCommand(command);
-      if (suggestion) {
-        print(`\nDid you mean: ${suggestion}?`);
-      }
-    }
+            for (let i = 0; i < hops.length; i++) {
+                await sleep(600);
+                const ms1 = 1 + Math.floor(Math.random() * 5);
+                const ms2 = ms1 + Math.floor(Math.random() * 3);
+                const ms3 = ms2 + Math.floor(Math.random() * 2);
+                print(`  ${(i + 1).toString().padStart(2)}    ${ms1} ms    ${ms2} ms    ${ms3} ms    ${hops[i]}`);
+            }
+            print("\nTrace complete.");
+        }
 
-    cmdInput.value = "";
-  }
-});
+        /* ---------------- DATE/TIME COMMAND ---------------- */
+        function dateTimeCommand() {
+            const now = new Date();
+            print(`The current date is: ${now.toDateString()}`);
+            print(`The current time is: ${now.toLocaleTimeString()}`);
+        }
 
-/* ---------------- FAKE TABS ---------------- */
-const tabBar = document.getElementById("tabBar");
-const addTabBtn = document.getElementById("addTab");
+        /* ---------------- ENHANCED EASTER EGGS ---------------- */
+        async function matrixEffect() {
+            const chars = "ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01";
+            print("\n[ENTERING THE MATRIX...]\n");
+            await sleep(500);
 
-let tabCount = 1;
+            for (let i = 0; i < 12; i++) {
+                let line = "";
+                for (let j = 0; j < 70; j++) {
+                    line += chars[Math.floor(Math.random() * chars.length)];
+                }
+                await typeLine(line, 1);
+            }
 
-addTabBtn.addEventListener("click", () => {
-  tabCount++;
+            await sleep(800);
+            print("\n[CONNECTION TERMINATED]\n");
+        }
 
-  const tab = document.createElement("div");
-  tab.className = "tab";
-  tab.textContent = `Tab ${tabCount}`;
+        async function hackEffect() {
+            print("\n[INITIALIZING HACK SEQUENCE...]");
+            await sleep(500);
+            await loadingDots("Bypassing firewall", 3, 300);
+            await loadingDots("Cracking encryption", 3, 300);
+            await loadingDots("Accessing mainframe", 3, 300);
+            print("\n[ACCESS GRANTED]");
+            print("Just kidding! This is just a portfolio site ;)");
+        }
 
-  // Switch active tab visually
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-  });
+        async function treeCommand() {
+            print("\nC:\\USERS\\NULLFRAG");
+            await sleep(200);
+            print("│");
+            print("├───resume");
+            await sleep(100);
+            print("│   └───resume.txt");
+            await sleep(100);
+            print("│");
+            print("├───projects");
+            await sleep(100);
+            print("│   ├───lsass-monitor.exe");
+            print("│   ├───obfuscator.dll");
+            print("│   └───win32-dump.exe");
+            await sleep(100);
+            print("│");
+            print("└───skills");
+            await sleep(100);
+            print("    ├───languages.txt");
+            print("    └───security.txt");
+            print("");
+        }
 
-  // Insert before +
-  tabBar.insertBefore(tab, addTabBtn);
+        async function loadingDots(text, cycles = 4, interval = 400) {
+            const start = output.textContent.length;
+            let dots = 0;
 
-  // Make new tab active
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  tab.classList.add("active");
-});
+            for (let i = 0; i < cycles * 2; i++) {
+                dots = (dots + 1) % 4;
+                output.textContent =
+                    output.textContent.slice(0, start) +
+                    text +
+                    ".".repeat(dots) +
+                    "\n";
 
-// Start boot sequence
-boot();
-</script>
+                terminal.scrollTop = terminal.scrollHeight;
+                await sleep(interval);
+            }
+        }
+
+        /* ---------------- BOOT ---------------- */
+        async function boot() {
+            await typeLine("Microsoft Windows [Version 10.0.19045.4046]");
+            await typeLine("(c) Microsoft Corporation. All rights reserved.");
+            await typeLine("Initializing secure environment...");
+            await loadingDots("Verifying hardware integrity", 3, 400);
+            await loadingDots("Loading modules", 4, 350);
+            await loadingDots("Decrypting session keys", 4, 350);
+            await typeLine("Access granted.");
+            await sleep(600);
+            await typeLine("Welcome to Secret Lab");
+            print("");
+            await typeLine("Type 'help' to continue.");
+            isBooting = false;
+            mode = "shell";
+            promptEl.style.display = "flex";
+            cmdInput.disabled = false;
+            updatePrompt();
+            cmdInput.focus();
+            setTimeout(showMobileWarning, 300);
+        }
+
+        function showMobileWarning() {
+            // EXTRA SAFETY: real mobile detection
+            if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
+
+            // Prevent duplicates
+            if (document.getElementById("nf-mobile-warning")) return;
+
+            const warn = document.createElement("div");
+            warn.id = "nf-mobile-warning";
+            warn.textContent = "⚠️ Mobile detected — best experienced on desktop / laptop";
+
+            Object.assign(warn.style, {
+                position: "fixed",
+                inset: "auto 0 70px 0",
+                margin: "0 auto",
+                width: "fit-content",
+                maxWidth: "90%",
+                background: "rgba(0,0,0,0.92)",
+                color: "#ffcc00",
+                padding: "10px 14px",
+                border: "1px solid #333",
+                borderRadius: "6px",
+                fontFamily: "Consolas, monospace",
+                fontSize: "12.5px",
+                zIndex: "2147483647",
+                pointerEvents: "none",
+                textAlign: "center",
+                boxShadow: "0 0 14px rgba(0,0,0,0.9)"
+            });
+
+            document.documentElement.appendChild(warn);
+        }
+
+
+        /* ---------------- SNAKE GAME ---------------- */
+        function startSnake() {
+            mode = "snake";
+            disableTerminalScroll();
+            cmdInput.disabled = true;
+            promptEl.style.display = "none";
+            output.textContent = "";
+
+            const GAME_SPEED = 130;
+            const SPEEDUP_EVERY = 10;
+            const MIN_SPEED = 70;
+
+            const charWidth = 8.8;
+            const charHeight = 18;
+            const cols = Math.floor(terminal.clientWidth / charWidth) - 4;
+            const rows = Math.floor(terminal.clientHeight / charHeight) - 6;
+
+            let snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+            let direction = { x: 1, y: 0 };
+            let nextDirection = direction;
+            let food = getRandomFoodPosition();
+            let score = 0;
+            let highScore = parseInt(localStorage.getItem("nf_snake_hs") || "0", 10);
+            let gameRunning = true;
+            let gamePaused = false;
+            let gameInterval = null;
+
+            const headChars = {
+                '1,0': '►',
+                '-1,0': '◄',
+                '0,-1': '▲',
+                '0,1': '▼'
+            };
+
+            function getRandomFoodPosition() {
+                let pos;
+                do {
+                    pos = {
+                        x: 1 + Math.floor(Math.random() * (cols - 2)),
+                        y: 1 + Math.floor(Math.random() * (rows - 2))
+                    };
+                } while (snake.some(s => s.x === pos.x && s.y === pos.y));
+                return pos;
+            }
+
+            function drawCenteredPopup(board, gameOver, gamePaused) {
+                if (!gameOver && !gamePaused) return;
+
+                const midRow = Math.floor(rows / 2);
+                const status = gameOver ? "GAME OVER!" : "PAUSED";
+                const instruction = gameOver ? "Press Q to quit" : "Press P/SPACE to resume";
+
+                const boxWidth = Math.max(status.length, instruction.length) + 4;
+                const boxLeft = Math.floor((cols - boxWidth) / 2);
+
+                for (let r = midRow - 2; r <= midRow + 2; r++) {
+                    if (r >= 0 && r < rows) {
+                        for (let c = boxLeft - 1; c < boxLeft + boxWidth + 1; c++) {
+                            if (c >= 0 && c < cols) board[r][c] = " ";
+                        }
+                    }
+                }
+
+                if (midRow - 2 >= 0 && midRow - 2 < rows) {
+                    board[midRow - 2][boxLeft - 1] = "┌";
+                    for (let c = boxLeft; c < boxLeft + boxWidth; c++) {
+                        board[midRow - 2][c] = "─";
+                    }
+                    board[midRow - 2][boxLeft + boxWidth] = "┐";
+                }
+
+                const statusPad = Math.floor((boxWidth - status.length) / 2);
+                for (let i = 0; i < status.length; i++) {
+                    board[midRow - 1][boxLeft + statusPad + i] = status[i];
+                }
+
+                const instrPad = Math.floor((boxWidth - instruction.length) / 2);
+                for (let i = 0; i < instruction.length; i++) {
+                    board[midRow][boxLeft + instrPad + i] = instruction[i];
+                }
+
+                if (midRow + 1 >= 0 && midRow + 1 < rows) {
+                    board[midRow + 1][boxLeft - 1] = "└";
+                    for (let c = boxLeft; c < boxLeft + boxWidth; c++) {
+                        board[midRow + 1][c] = "─";
+                    }
+                    board[midRow + 1][boxLeft + boxWidth] = "┘";
+                }
+            }
+
+            function drawBoard(gameOver = false) {
+                let board = Array(rows).fill().map(() => Array(cols).fill(" "));
+
+                snake.slice(1).forEach(seg => {
+                    board[seg.y][seg.x] = "█";
+                });
+
+                const headKey = `${direction.x},${direction.y}`;
+                board[snake[0].y][snake[0].x] = headChars[headKey] || "█";
+
+                board[food.y][food.x] = "♦";
+
+                drawCenteredPopup(board, gameOver, gamePaused);
+
+                let text = "╔" + "═".repeat(cols) + "╗\n";
+
+                board.forEach(row => {
+                    text += "║" + row.join("") + "║\n";
+                });
+
+                text += "╚" + "═".repeat(cols) + "╝\n";
+
+                const scoreText = `Score: ${score.toString().padStart(4, '0')}  High: ${highScore.toString().padStart(4, '0')}`;
+                const scorePad = Math.floor((cols + 2 - scoreText.length) / 2);
+                text += "\n" + " ".repeat(scorePad) + scoreText;
+
+                output.textContent = text;
+            }
+
+            function moveSnake() {
+                if (!gameRunning || gamePaused) return;
+
+                direction = nextDirection;
+
+                const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+                if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows ||
+                    snake.some((s, i) => i > 0 && s.x === head.x && s.y === head.y)) {
+                    gameRunning = false;
+                    drawBoard(true);
+                    return;
+                }
+
+                snake.unshift(head);
+
+                if (head.x === food.x && head.y === food.y) {
+                    score++;
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem("nf_snake_hs", highScore);
+                    }
+                    food = getRandomFoodPosition();
+
+                    if (score % SPEEDUP_EVERY === 0 && gameInterval) {
+                        clearInterval(gameInterval);
+                        gameInterval = setInterval(moveSnake, Math.max(MIN_SPEED, GAME_SPEED - score * 4));
+                    }
+                } else {
+                    snake.pop();
+                }
+
+                drawBoard();
+            }
+
+            function handleKey(e) {
+                if (mode !== "snake") return;
+                e.preventDefault();
+
+                const k = e.key.toLowerCase();
+
+                if ((k === "arrowup" || k === "w") && direction.y !== 1) nextDirection = { x: 0, y: -1 };
+                if ((k === "arrowdown" || k === "s") && direction.y !== -1) nextDirection = { x: 0, y: 1 };
+                if ((k === "arrowleft" || k === "a") && direction.x !== 1) nextDirection = { x: -1, y: 0 };
+                if ((k === "arrowright" || k === "d") && direction.x !== -1) nextDirection = { x: 1, y: 0 };
+
+                if ((k === " " || k === "p") && gameRunning) {
+                    gamePaused = !gamePaused;
+                    drawBoard(gamePaused);
+                }
+                if (k === "q" && (!gameRunning || gamePaused)) exitSnake();
+            }
+
+            function exitSnake() {
+                document.removeEventListener("keydown", handleKey);
+                if (gameInterval) clearInterval(gameInterval);
+                enableTerminalScroll();
+                output.textContent = "";
+                promptEl.style.display = "flex";
+                cmdInput.disabled = false;
+                cmdInput.focus();
+                mode = "shell";
+            }
+
+            document.addEventListener("keydown", handleKey);
+            drawBoard();
+            gameInterval = setInterval(moveSnake, GAME_SPEED);
+        }
+
+        /* ---------------- GLOBAL KEY HANDLERS ---------------- */
+        document.addEventListener("keydown", e => {
+            // CTRL+C to skip typing animation
+            if (e.ctrlKey && e.key === "c" && mode === "shell") {
+                skipTyping = true;
+            }
+        });
+
+        /* ---------------- MOBILE SUPPORT ---------------- */
+        mobileBtn.addEventListener('click', () => {
+            cmdInput.focus();
+            cmdInput.click();
+        });
+
+        cmdInput.addEventListener('focus', () => {
+            if (window.innerWidth <= 768) {
+                mobileBtn.style.opacity = '0.3';
+            }
+        });
+
+        cmdInput.addEventListener('blur', () => {
+            if (window.innerWidth <= 768) {
+                mobileBtn.style.opacity = '1';
+            }
+        });
+
+        /* ---------------- MAIN SHELL ---------------- */
+        cmdInput.addEventListener("keydown", async e => {
+            if (mode !== "shell" || isBooting) return;
+
+            // TAB COMPLETION
+            if (e.key === "Tab") {
+                e.preventDefault();
+                const input = cmdInput.value.trim();
+                const matches = getTabCompletion(input);
+
+                if (matches.length === 1) {
+                    cmdInput.value = matches[0];
+                } else if (matches.length > 1) {
+                    print(`\nPossible commands: ${matches.join(", ")}`);
+                    print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
+                }
+                return;
+            }
+
+            // History navigation
+            if (e.key === "ArrowUp" && history.length) {
+                historyIndex = historyIndex <= 0 ? history.length - 1 : historyIndex - 1;
+                cmdInput.value = history[historyIndex];
+                e.preventDefault();
+            }
+            if (e.key === "ArrowDown" && history.length) {
+                historyIndex = historyIndex >= history.length - 1 ? -1 : historyIndex + 1;
+                cmdInput.value = historyIndex === -1 ? "" : history[historyIndex];
+                e.preventDefault();
+            }
+
+            if (e.key === "Enter") {
+                const input = cmdInput.value.trim();
+                if (input) {
+                    print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
+                    history.push(input);
+                    historyIndex = -1;
+                }
+
+                const [command, ...args] = input.split(/\s+/);
+                const arg = args.join(" ");
+
+                if (!command) {
+                    // just enter -> new line
+                }
+                else if (command === "snake") {
+                    startSnake();
+                }
+                else if (command === "clear") {
+                    output.textContent = "";
+                }
+                else if (command === "ping" && arg) {
+                    await pingCommand(arg);
+                }
+                else if (command === "traceroute" && arg) {
+                    await tracerouteCommand(arg);
+                }
+                else if (command === "date" || command === "time") {
+                    dateTimeCommand();
+                }
+                else if (command === "matrix") {
+                    await matrixEffect();
+                }
+                else if (command === "hack") {
+                    await hackEffect();
+                }
+                else if (command === "tree") {
+                    await treeCommand();
+                }
+                else if (command === "show" && arg === "hidden") {
+                    print("Hidden / Easter Egg Commands:");
+                    print("");
+                    print("  Network & System:");
+                    print("    traceroute <target> - Trace route to target");
+                    print("    date                - Show current date and time");
+                    print("    time                - Show current time");
+                    print("    ver                 - Show Windows version");
+                    print("    tasklist            - Show running processes");
+                    print("");
+                    print("  Fun Effects:");
+                    print("    matrix              - Enter the matrix");
+                    print("    hack                - Initialize hack sequence");
+                    print("    tree                - Show directory tree");
+                    print("    sudo                - Try sudo access");
+                    print("");
+                    print("  File System:");
+                    print("    dir / ls            - List directory contents");
+                    print("    cd <dir>            - Change directory");
+                    print("    cat <file>          - Display file contents");
+                }
+                // ────── Fake filesystem commands ──────
+                else if (command === "dir" || command === "ls") {
+                    if (e.shiftKey) {
+                        print("dir is angry because you called him ls again...");
+                    } else {
+                        dirCommand();
+                    }
+                }
+                else if (command === "cd") {
+                    cdCommand(arg);
+                }
+                else if (command === "cat" && arg) {
+                    catCommand(arg);
+                }
+                // ────── Normal & hidden commands ──────
+                else if (data[command]) {
+                    const lines = data[command].split("\n").filter(x => x.trim());
+                    lines.forEach(line => print(line));
+                }
+                else if (command === "whoami" && e.shiftKey) {
+                    print("root@nullfrag.local # whoami");
+                    print("guest");
+                }
+                else {
+                    print(`'${command}' is not recognized as an internal or external command,`);
+                    print("operable program or batch file.");
+
+                    // COMMAND SUGGESTIONS
+                    const suggestion = findSimilarCommand(command);
+                    if (suggestion) {
+                        print(`\nDid you mean: ${suggestion}?`);
+                    }
+                }
+
+                cmdInput.value = "";
+            }
+        });
+
+
+        /* ---------------- FAKE TABS ---------------- */
+        const tabBar = document.getElementById("tabBar");
+        const addTabBtn = document.getElementById("addTab");
+
+        let tabCount = 1;
+
+        addTabBtn.addEventListener("click", () => {
+            tabCount++;
+
+            const tab = document.createElement("div");
+            tab.className = "tab";
+            tab.textContent = `Tab ${tabCount}`;
+
+            // Switch active tab visually
+            tab.addEventListener("click", () => {
+                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+                tab.classList.add("active");
+            });
+
+            // Insert before +
+            tabBar.insertBefore(tab, addTabBtn);
+
+            // Make new tab active
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+        });
+
+        // Start boot sequence
+        boot();
+    </script>
 </body>
 </html>
