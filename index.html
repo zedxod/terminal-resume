@@ -336,7 +336,16 @@ GitHub : https://github.com/zedxod
 
             // Hidden / easter egg commands
             ver: "Microsoft Windows [Version 10.0.19045.4046 (NullFrag Edition)]",
-            tasklist: "NullFrag    1337 Console                 1 K   Running",
+            tasklist: `
+Image Name                     PID Session Name        Mem Usage
+========================= ======== ================ ============
+lsass.exe                    688   Services             34,512 K
+NullFrag                    1337   Console               1,024 K
+System Idle Process          276   Services                  8 K
+svchost.exe                 8924   Console              48,056 K
+brave.exe                  18108   Console             301,948 K
+cmd.exe                    24288   Console               5,780 K
+kaspersky-service.exe      24288   Console               5,780 K`,
             sudo: "sudo: effective uid is still 0, nice try tho ;)"
         };
 
@@ -639,6 +648,7 @@ GitHub : https://github.com/zedxod
             await typeLine("(c) Microsoft Corporation. All rights reserved.");
             await typeLine("Initializing secure environment...");
             await loadingDots("Verifying hardware integrity", 3, 400);
+            await loadingDots("Collecting entropy from system events", 3, 380);
             await loadingDots("Loading modules", 4, 350);
             await loadingDots("Decrypting session keys", 4, 350);
             await typeLine("Access granted.");
@@ -1048,6 +1058,7 @@ GitHub : https://github.com/zedxod
                     print(`\nPossible commands: ${matches.join(", ")}`);
                     print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
                 }
+
                 return;
             }
 
@@ -1075,7 +1086,8 @@ GitHub : https://github.com/zedxod
                 const arg = args.join(" ");
 
                 if (!command) {
-                    // just enter -> new line
+                    print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}>`);
+                    historyIndex = -1;
                 }
                 else if (command === "snake") {
                     startSnake();
@@ -1100,6 +1112,7 @@ GitHub : https://github.com/zedxod
                 }
                 else if (command === "tree") {
                     await treeCommand();
+
                 }
                 else if (command === "show" && arg === "hidden") {
                     print("Hidden / Easter Egg Commands:");
@@ -1136,6 +1149,38 @@ GitHub : https://github.com/zedxod
                 else if (command === "cat" && arg) {
                     catCommand(arg);
                 }
+
+                else if (
+                    command === "lsass" ||
+                    (command === "taskkill" && /lsass/i.test(arg)) ||
+                    (command === "kill" && arg === "lsass")
+                ) {
+                    await typeLine("Attempting to access LSASS...");
+                    await loadingDots("Verifying process integrity", 4, 600);
+                    await typeLine("Critical system process.");
+                    await typeLine("Termination not permitted.");
+                    await sleep(500);
+                    print("");
+                    print("[WARNING]");
+                    print("");
+                    print("I tried this once.");
+                    print("Windows did not forgive me.");
+                    print("");
+                }
+
+                else if (command === "rm") {
+                    print("rm: rm is not recognized in this environment.");
+                }
+
+                else if (command === "del" || command === "erase") {
+                    print("del: access denied.");
+                }
+
+                else if (command === "rm" && /-r[fF]?\s+\*/.test(arg)) {
+                    print("Nice try.");
+                    print("This system runs on NTFS, not fear.");
+                }
+
                 // ────── Normal & hidden commands ──────
                 else if (data[command]) {
                     const lines = data[command].split("\n").filter(x => x.trim());
@@ -1144,6 +1189,7 @@ GitHub : https://github.com/zedxod
                 else if (command === "whoami" && e.shiftKey) {
                     print("root@nullfrag.local # whoami");
                     print("guest");
+
                 }
                 else {
                     print(`'${command}' is not recognized as an internal or external command,`);
@@ -1187,6 +1233,37 @@ GitHub : https://github.com/zedxod
             document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
             tab.classList.add("active");
         });
+
+        let inspectorOpenCount = 0;
+        let lastInspectorState = false;
+
+        setInterval(() => {
+            const threshold = 160;
+            const widthDiff = window.outerWidth - window.innerWidth;
+            const heightDiff = window.outerHeight - window.innerHeight;
+
+            const isOpen = widthDiff > threshold || heightDiff > threshold;
+
+            // Detect transition: CLOSED → OPEN
+            if (isOpen && !lastInspectorState) {
+                inspectorOpenCount++;
+
+                print("");
+
+                if (inspectorOpenCount === 1) {
+                    print("⚠️Inspector attached.");
+                    print("⚠️Monitoring input.");
+                    print("");
+                }
+                else if (inspectorOpenCount === 2) {
+                    print("Debugger persistence detected.");
+                    print("Respect.");
+                }
+                // 3rd+ open → intentionally silent (restraint)
+            }
+
+            lastInspectorState = isOpen;
+        }, 1000);
 
         // Start boot sequence
         boot();
