@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NullFrag — Command Prompt</title>
+    <title>NullFrag — Command Prompt v2</title>
     <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 
     <style>
@@ -1254,7 +1254,10 @@ kaspersky-service.exe      24288   Console               5,780 K`,
             const widthDiff = window.outerWidth - window.innerWidth;
             const heightDiff = window.outerHeight - window.innerHeight;
 
-            const isOpen = widthDiff > threshold || heightDiff > threshold;
+            const isOpen =
+                widthDiff > threshold ||
+                heightDiff > threshold ||
+                /./.toString() !== "/./";
 
             // Detect transition: CLOSED → OPEN
             if (isOpen && !lastInspectorState) {
