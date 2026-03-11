@@ -1,1323 +1,1682 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NullFrag — Command Prompt v2</title>
-    <link rel="icon" type="image/png" href="assets/icons/favicon.png">
-
+    <title>NullFrag OS</title>
+    <meta name="description" content="NullFrag — Secure Terminal Interface">
+    <meta property="og:title" content="NullFrag OS">
+    <meta property="og:description" content="NullFrag OS — Secure Terminal Interface">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nullfrag.online">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬛</text></svg>">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
         :root {
-            --green: #33ff33;
-            --bg: #000;
-            --border: #2b2b2b;
-            --titlebar: #111;
+            --green:#00ff41;--green-dim:#00cc33;--green-glow:#00ff4180;
+            --terminal-bg:#0c0c0c;--amber:#ffb000;--red:#ff3333;--cyan:#00d4ff;
+            --white:#e0e0e0;--desktop-bg:#0d1117;--taskbar-bg:#161b22;
+            --window-border:#30363d;--titlebar-bg:#1c2128;
         }
 
-        body {
-            background: #111;
-            font-family: Consolas, "Lucida Console", monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
+        body{background:#000;color:var(--green);font-family:'Fira Code','Consolas',monospace;font-size:13px;overflow:hidden;height:100vh;width:100vw;user-select:none}
+
+        /* ═══════════════════════════════════════
+           PHASE 1: BIOS POST SCREEN
+           ═══════════════════════════════════════ */
+        #bios-screen {
+            position:fixed;inset:0;background:#000;z-index:90000;
+            display:flex;flex-direction:column;padding:40px;
+            font-size:14px;color:#aaa;
         }
+        #bios-screen .bios-line{opacity:0;line-height:1.8}
+        #bios-screen .bios-line.show{opacity:1}
+        .bios-logo{color:var(--green);font-size:12px;text-shadow:0 0 10px var(--green-glow);line-height:1.15;margin-bottom:20px}
+        .bios-highlight{color:#fff;font-weight:700}
+        .bios-ok{color:var(--green)}
+        .bios-warn{color:var(--amber)}
+        .bios-bar-track{background:#222;height:12px;max-width:300px;margin:4px 0;border:1px solid #333}
+        .bios-bar-fill{background:var(--green);height:100%;width:0%;transition:width 0.05s linear}
 
-        /* ---------------- MOBILE FIX ---------------- */
-        @media (max-width: 768px) {
-            body {
-                /* Disable centering on mobile */
-                display: block;
-                height: calc(var(--vh, 1vh) * 100);
-                overflow: hidden;
-            }
-
-            #cmd-window {
-                width: 100vw;
-                max-width: 100vw;
-                height: calc(var(--vh, 1vh) * 100);
-                border-radius: 0;
-                border: none;
-                box-shadow: none;
-            }
+        /* ═══════════════════════════════════════
+           PHASE 2: LOGIN SCREEN
+           ═══════════════════════════════════════ */
+        #login-screen {
+            position:fixed;inset:0;z-index:80000;display:none;
+            flex-direction:column;align-items:center;justify-content:center;
+            background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#0d1117 100%);
         }
-
-        /* Desktop / default terminal window */
-        #cmd-window {
-            border-radius: 8px;
-            overflow: hidden;
-            width: 900px;
-            max-width: 95%;
-            background: var(--bg);
-            border: 2px solid var(--border);
-            box-shadow: 0 0 30px rgba(0,0,0,.8);
+        #login-screen::before {
+            content:'';position:absolute;inset:0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.01) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(255,255,255,0.01) 1px,transparent 1px);
+            background-size:40px 40px;pointer-events:none;
         }
-        /* macOS title bar */
-        #title-bar {
-            height: 34px;
-            background: linear-gradient(#1e1e1e, #161616);
-            border-bottom: 1px solid #0f0f0f;
-            display: flex;
-            align-items: center;
-            position: relative;
-            user-select: none;
+        .login-container{display:flex;flex-direction:column;align-items:center;gap:20px;z-index:1}
+        .login-avatar{
+            width:100px;height:100px;border-radius:50%;
+            background:linear-gradient(135deg,var(--green-dim),var(--cyan));
+            display:flex;align-items:center;justify-content:center;font-size:44px;
+            box-shadow:0 0 30px var(--green-glow),0 8px 32px rgba(0,0,0,0.4);
+            animation:avatar-pulse 3s ease-in-out infinite;
         }
-
-        /* Traffic lights */
-        .window-buttons {
-            position: absolute;
-            left: 12px;
-            display: flex;
-            gap: 8px;
+        @keyframes avatar-pulse{0%,100%{box-shadow:0 0 30px var(--green-glow),0 8px 32px rgba(0,0,0,0.4)}50%{box-shadow:0 0 50px var(--green-glow),0 8px 32px rgba(0,0,0,0.4)}}
+        .login-name{font-family:'Inter',system-ui,sans-serif;font-size:22px;font-weight:600;color:#fff}
+        .login-input-wrap{
+            display:flex;align-items:center;background:rgba(255,255,255,0.06);
+            border:1px solid var(--window-border);border-radius:25px;
+            padding:10px 20px;gap:10px;width:280px;transition:border-color 0.2s;
         }
-
-        .btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+        .login-input-wrap:focus-within{border-color:var(--green)}
+        .login-input-wrap svg{width:18px;height:18px;stroke:#666;fill:none;stroke-width:2;flex-shrink:0}
+        #login-password{
+            background:transparent;border:none;color:#fff;font-family:'Inter',system-ui,sans-serif;
+            font-size:14px;outline:none;flex:1;
         }
-
-        .close {
-            background: #ff5f56;
+        .login-submit{
+            width:36px;height:36px;border-radius:50%;border:none;
+            background:var(--green);color:#000;font-size:18px;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;
+            transition:transform 0.1s,box-shadow 0.2s;
         }
-
-        .minimize {
-            background: #ffbd2e;
+        .login-submit:hover{transform:scale(1.1);box-shadow:0 0 15px var(--green-glow)}
+        .login-hint{color:#484f58;font-family:'Inter',system-ui,sans-serif;font-size:12px;margin-top:4px}
+        .login-error{color:var(--red);font-family:'Inter',system-ui,sans-serif;font-size:12px;height:16px}
+        .login-time{
+            position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+            font-family:'Inter',system-ui,sans-serif;text-align:center;
         }
+        .login-time .lt-time{font-size:64px;font-weight:700;color:#fff;letter-spacing:-2px}
+        .login-time .lt-date{font-size:16px;color:#8b949e;margin-top:4px}
 
-        .maximize {
-            background: #27c93f;
+        /* ═══════════════════════════════════════
+           PHASE 3: DESKTOP
+           ═══════════════════════════════════════ */
+        #desktop-screen{position:fixed;inset:0;display:none;flex-direction:column;background:var(--desktop-bg)}
+        #desktop-screen::before{
+            content:'';position:absolute;inset:0;
+            background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+            background-size:40px 40px;pointer-events:none;
         }
+        /* CRT */
+        .crt{position:fixed;inset:0;pointer-events:none;z-index:99999}
+        .crt::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none}
 
-        /* Tab bar */
-        .tab-bar {
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        /* Desktop Area */
+        .desktop-area{flex:1;position:relative;padding:20px;z-index:10}
+        .desktop-icons{display:flex;flex-direction:column;gap:6px;width:fit-content}
+        .desktop-icon{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:6px;cursor:pointer;transition:background 0.15s;width:80px;text-align:center}
+        .desktop-icon:hover{background:rgba(255,255,255,0.06)}
+        .desktop-icon:active{background:rgba(255,255,255,0.1)}
+        .desktop-icon .icon-img{font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4))}
+        .desktop-icon .icon-label{font-family:'Inter',system-ui,sans-serif;font-size:11px;font-weight:500;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.8);line-height:1.2}
+
+        /* ═══════ WINDOW SYSTEM ═══════ */
+        .os-window{
+            position:absolute;display:flex;flex-direction:column;
+            border-radius:10px;overflow:hidden;border:1px solid var(--window-border);
+            box-shadow:0 25px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.05);
+            animation:winOpen 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+            opacity:0;z-index:100;
         }
+        .os-window.focused{z-index:150}
+        @keyframes winOpen{0%{opacity:0;transform:scale(0.92)}100%{opacity:1;transform:scale(1)}}
+        @keyframes winClose{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.92)}}
 
-        /* Tabs */
-        .tab {
-            background: #2a2a2a;
-            color: #d0d0d0;
-            padding: 5px 14px;
-            border-radius: 6px;
-            font-size: 12.5px;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 1px rgba(0,0,0,0.6);
+        .win-titlebar{
+            display:flex;align-items:center;justify-content:space-between;
+            background:var(--titlebar-bg);padding:0 16px;height:38px;flex-shrink:0;
+            border-bottom:1px solid var(--window-border);cursor:default;
         }
+        .win-titlebar-left{display:flex;align-items:center;gap:10px}
+        .win-titlebar-text{color:#8b949e;font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:500}
+        .win-titlebar-icon{font-size:14px}
+        .win-buttons{display:flex;align-items:center}
+        .win-btn{width:46px;height:38px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.1s}
+        .win-btn:hover{background:rgba(255,255,255,0.06)}
+        .win-btn.close-btn:hover{background:var(--red)}
+        .win-btn svg{width:10px;height:10px;stroke:#8b949e;stroke-width:1.5;fill:none}
+        .win-btn.close-btn:hover svg{stroke:#fff}
 
-            .tab.active {
-                background: #303030;
-            }
+        .win-body{flex:1;overflow:auto;background:var(--terminal-bg)}
 
-        /* + button */
-        .tab-add {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
-            background: #1f1f1f;
-            color: #aaa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            pointer-events: none;
-            cursor: pointer;
+        /* Tab Bar */
+        .tab-bar{display:flex;align-items:flex-end;background:#111318;padding:0 8px;height:34px;gap:1px;flex-shrink:0;border-bottom:1px solid var(--window-border)}
+        .tab{display:flex;align-items:center;gap:6px;padding:6px 14px;background:transparent;color:#6e7681;font-family:'Inter',system-ui,sans-serif;font-size:11px;font-weight:500;border-radius:6px 6px 0 0;cursor:pointer;border:1px solid transparent;border-bottom:none;position:relative;top:1px}
+        .tab.active{background:var(--terminal-bg);color:var(--white);border-color:var(--window-border)}
+        .tab .tab-close{margin-left:6px;opacity:0;font-size:14px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:3px}
+        .tab:hover .tab-close,.tab.active .tab-close{opacity:0.5}
+        .tab-new{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#6e7681;font-size:18px;cursor:pointer;border-radius:4px;margin-left:4px;align-self:center}
+        .tab-new:hover{background:rgba(255,255,255,0.06);color:#aaa}
+
+        /* Terminal Body */
+        .terminal-body{flex:1;overflow-y:auto;padding:14px 18px;background:var(--terminal-bg);scrollbar-width:thin;scrollbar-color:#333 transparent}
+        .terminal-body::-webkit-scrollbar{width:6px}
+        .terminal-body::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+        /* Lines */
+        .line{opacity:0;white-space:pre-wrap;word-break:break-word;line-height:1.6;min-height:1.6em;text-shadow:0 0 6px var(--green-glow)}
+        .line.visible{opacity:1}
+        .line.typing{overflow:hidden;border-right:2px solid var(--green);animation:blink-caret 0.6s step-end infinite;display:inline-block;white-space:nowrap}
+        @keyframes blink-caret{50%{border-color:transparent}}
+        .line .label{color:var(--cyan);font-weight:700}
+        .line .ok{color:var(--green);font-weight:700}
+        .line .warn{color:var(--amber);font-weight:700}
+        .line .err{color:var(--red);font-weight:700}
+        .line .dim{color:#484f58}
+        .line .white{color:var(--white)}
+        .line .accent{color:var(--cyan)}
+
+        .progress-container{background:#161b22;border:1px solid #21262d;height:14px;margin:4px 0;overflow:hidden;max-width:350px;border-radius:2px}
+        .progress-bar{background:linear-gradient(90deg,var(--green-dim),var(--green));height:100%;width:0%;transition:width 0.1s linear;box-shadow:0 0 8px var(--green-glow)}
+        .ascii-art{color:var(--green);text-shadow:0 0 12px var(--green-glow),0 0 25px rgba(0,255,65,0.15);line-height:1.15;font-size:clamp(5px,0.95vw,11px)}
+        .glitch{position:relative;animation:glitch-skew 4s infinite linear alternate-reverse}
+        .glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+        .glitch::before{color:var(--cyan);animation:gl 3s infinite linear alternate-reverse;clip-path:inset(20% 0 60% 0)}
+        .glitch::after{color:var(--red);animation:gl 2s infinite linear alternate-reverse;clip-path:inset(60% 0 10% 0)}
+        @keyframes gl{0%{transform:translate(0)}20%{transform:translate(-2px,1px)}40%{transform:translate(2px,-1px)}60%{transform:translate(-1px,2px)}80%{transform:translate(1px,-2px)}100%{transform:translate(0)}}
+        @keyframes glitch-skew{0%{transform:skew(0deg)}2%{transform:skew(0.4deg)}4%{transform:skew(0deg)}100%{transform:skew(0deg)}}
+
+        .input-area{display:none;align-items:center;margin-top:4px;line-height:1.6}
+        .input-area.active{display:flex}
+        .prompt-symbol{color:var(--cyan);font-weight:700;margin-right:8px;white-space:nowrap;text-shadow:0 0 6px rgba(0,212,255,0.3)}
+        #command-input{background:transparent;border:none;color:var(--green);font-family:inherit;font-size:inherit;outline:none;flex:1;caret-color:var(--green);text-shadow:0 0 6px var(--green-glow)}
+        .cmd-output{margin:8px 0;padding:8px 0}
+        .cmd-output .section-title{color:var(--cyan);font-weight:700;text-shadow:0 0 8px rgba(0,212,255,0.3)}
+        .cmd-output .divider{color:#21262d}
+        .cmd-output ul{list-style:none;padding-left:2ch}
+        .cmd-output ul li::before{content:'▸ ';color:var(--green-dim)}
+
+        /* ═══════ NOTEPAD WINDOW ═══════ */
+        .notepad-body{background:#1e1e2e;color:#cdd6f4;font-family:'Fira Code',monospace;font-size:13px;padding:16px 20px;line-height:1.7;white-space:pre-wrap}
+        .notepad-body .np-comment{color:#585b70}
+        .notepad-body .np-key{color:var(--cyan)}
+        .notepad-body .np-val{color:var(--green)}
+        .notepad-body .np-str{color:#f9e2af}
+
+        /* ═══════ FILE EXPLORER ═══════ */
+        .explorer-body{background:#161b22;color:var(--white);font-family:'Inter',system-ui,sans-serif;font-size:13px}
+        .explorer-toolbar{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--window-border);background:#1c2128}
+        .explorer-path{background:rgba(255,255,255,0.04);border:1px solid var(--window-border);border-radius:6px;padding:5px 12px;color:#8b949e;font-size:12px;flex:1}
+        .explorer-sidebar{width:180px;border-right:1px solid var(--window-border);padding:12px;flex-shrink:0}
+        .explorer-sidebar-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;cursor:pointer;color:#8b949e;font-size:12px;transition:background 0.1s}
+        .explorer-sidebar-item:hover{background:rgba(255,255,255,0.04)}
+        .explorer-sidebar-item.active-item{background:rgba(0,255,65,0.08);color:var(--green)}
+        .explorer-content{flex:1;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;align-content:start}
+        .explorer-file{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:8px;cursor:pointer;transition:background 0.1s;text-align:center}
+        .explorer-file:hover{background:rgba(255,255,255,0.04)}
+        .explorer-file .ef-icon{font-size:32px}
+        .explorer-file .ef-name{font-size:11px;color:#c9d1d9;word-break:break-word}
+        .explorer-main{display:flex;flex:1;overflow:hidden}
+
+        /* ═══════ TASKBAR ═══════ */
+        .taskbar{position:fixed;bottom:0;left:0;right:0;height:48px;background:var(--taskbar-bg);border-top:1px solid var(--window-border);display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:500;backdrop-filter:blur(20px)}
+        .taskbar-left{display:flex;align-items:center;gap:4px}
+        .start-btn{width:40px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;transition:background 0.15s,transform 0.1s}
+        .start-btn:hover{background:rgba(255,255,255,0.06)}
+        .start-btn:active{transform:scale(0.95)}
+        .start-btn .start-icon{width:18px;height:18px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
+        .start-icon span{background:var(--green);border-radius:1px;box-shadow:0 0 4px var(--green-glow)}
+        .taskbar-divider{width:1px;height:24px;background:var(--window-border);margin:0 6px}
+        .taskbar-search{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid var(--window-border);border-radius:6px;padding:5px 12px;color:#484f58;font-family:'Inter',system-ui,sans-serif;font-size:12px;width:200px;cursor:text}
+        .taskbar-search svg{width:14px;height:14px;stroke:#484f58;fill:none;stroke-width:2;flex-shrink:0}
+        .taskbar-apps{display:flex;gap:2px;margin-left:4px}
+        .taskbar-app{width:42px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:18px;transition:background 0.1s;position:relative}
+        .taskbar-app:hover{background:rgba(255,255,255,0.06)}
+        .taskbar-app.active-app::after{content:'';position:absolute;bottom:2px;width:18px;height:3px;background:var(--green);border-radius:2px;box-shadow:0 0 6px var(--green-glow)}
+        .taskbar-right{display:flex;align-items:center;gap:4px}
+        .system-tray{display:flex;align-items:center;gap:2px;padding:4px 8px;border-radius:6px;cursor:default;transition:background 0.1s}
+        .system-tray:hover{background:rgba(255,255,255,0.04)}
+        .tray-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#8b949e}
+        .tray-clock{display:flex;flex-direction:column;align-items:flex-end;padding:2px 10px;border-radius:6px;cursor:pointer;transition:background 0.1s;font-family:'Inter',system-ui,sans-serif}
+        .tray-clock:hover{background:rgba(255,255,255,0.04)}
+        .tray-time{font-size:12px;font-weight:500;color:#e6edf3}
+        .tray-date{font-size:11px;color:#8b949e}
+        .show-desktop{width:6px;height:100%;margin-left:4px;border-left:1px solid var(--window-border);cursor:pointer}
+        .show-desktop:hover{background:rgba(255,255,255,0.06)}
+
+        /* ═══════ START MENU ═══════ */
+        #start-menu{
+            position:fixed;bottom:56px;left:12px;width:560px;
+            background:#1c2128;border:1px solid var(--window-border);border-radius:12px;
+            box-shadow:0 16px 64px rgba(0,0,0,0.6);z-index:600;
+            display:none;animation:startOpen 0.2s ease-out forwards;
+            font-family:'Inter',system-ui,sans-serif;overflow:hidden;
         }
+        #start-menu.show{display:block}
+        @keyframes startOpen{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 
-        #title-bar:hover .tab-add {
-            background: #2a2a2a;
-            color: rgba(255,255,255,0.85);
+        .start-header{padding:20px 24px 12px;display:flex;align-items:center;justify-content:space-between}
+        .start-header-title{font-size:14px;font-weight:600;color:#e6edf3}
+        .start-search{
+            margin:0 16px 12px;display:flex;align-items:center;gap:8px;
+            background:rgba(255,255,255,0.04);border:1px solid var(--window-border);
+            border-radius:8px;padding:8px 14px;transition:border-color 0.2s;
         }
+        .start-search:focus-within{border-color:var(--green)}
+        .start-search svg{width:16px;height:16px;stroke:#484f58;fill:none;stroke-width:2}
+        .start-search input{background:transparent;border:none;color:#fff;font-family:inherit;font-size:13px;outline:none;flex:1}
 
-        .window-buttons {
-            opacity: 0.85;
-            position: absolute;
-            left: 12px;
-            display: flex;
-            gap: 8px;
+        .start-section{padding:4px 16px}
+        .start-section-title{font-size:11px;font-weight:600;color:#484f58;text-transform:uppercase;letter-spacing:0.5px;padding:8px 8px 6px}
+        .start-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+        .start-app{
+            display:flex;flex-direction:column;align-items:center;gap:6px;
+            padding:14px 8px;border-radius:8px;cursor:pointer;transition:background 0.1s;
         }
+        .start-app:hover{background:rgba(255,255,255,0.06)}
+        .start-app-icon{font-size:24px}
+        .start-app-name{font-size:11px;color:#c9d1d9;text-align:center}
 
-        .btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+        .start-recent{padding:4px 16px 8px}
+        .start-recent-item{
+            display:flex;align-items:center;gap:10px;padding:8px 10px;
+            border-radius:6px;cursor:pointer;transition:background 0.1s;color:#8b949e;font-size:12px;
         }
+        .start-recent-item:hover{background:rgba(255,255,255,0.04)}
+        .start-recent-item .sri-icon{font-size:16px;width:24px;text-align:center}
 
-        .close {
-            background: #ff5f56;
+        .start-footer{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:12px 20px;border-top:1px solid var(--window-border);
+            background:rgba(0,0,0,0.15);
         }
-
-        .minimize {
-            background: #ffbd2e;
+        .start-user{display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background 0.1s}
+        .start-user:hover{background:rgba(255,255,255,0.04)}
+        .start-user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--green-dim),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:14px}
+        .start-user-name{font-size:12px;color:#c9d1d9;font-weight:500}
+        .start-power{display:flex;align-items:center;gap:4px}
+        .start-power-btn{
+            width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+            border-radius:6px;cursor:pointer;font-size:16px;transition:background 0.1s;
         }
+        .start-power-btn:hover{background:rgba(255,255,255,0.08)}
+        .start-power-btn[title="Shut Down"]:hover{background:rgba(255,51,51,0.2)}
 
-        .maximize {
-            background: #27c93f;
+        /* ═══════ NOTIFICATION CENTER ═══════ */
+        #notif-center{
+            position:fixed;bottom:56px;right:12px;width:360px;
+            background:#1c2128;border:1px solid var(--window-border);border-radius:12px;
+            box-shadow:0 16px 64px rgba(0,0,0,0.6);z-index:600;
+            display:none;animation:startOpen 0.2s ease-out;
+            font-family:'Inter',system-ui,sans-serif;overflow:hidden;max-height:500px;
         }
+        #notif-center.show{display:block}
+        .notif-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--window-border)}
+        .notif-header-title{font-size:14px;font-weight:600;color:#e6edf3}
+        .notif-clear{font-size:12px;color:var(--cyan);cursor:pointer}
+        .notif-list{padding:8px;max-height:350px;overflow-y:auto}
+        .notif-item{display:flex;gap:12px;padding:12px;border-radius:8px;cursor:pointer;transition:background 0.1s;margin-bottom:4px}
+        .notif-item:hover{background:rgba(255,255,255,0.04)}
+        .notif-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+        .notif-content{flex:1}
+        .notif-title{font-size:12px;font-weight:600;color:#e6edf3;margin-bottom:2px}
+        .notif-body{font-size:11px;color:#8b949e;line-height:1.4}
+        .notif-time{font-size:10px;color:#484f58;margin-top:4px}
+        .notif-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:12px 16px;border-top:1px solid var(--window-border)}
+        .notif-quick-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:8px;cursor:pointer;transition:background 0.15s;font-size:11px;color:#8b949e}
+        .notif-quick-btn:hover{background:rgba(255,255,255,0.06)}
+        .notif-quick-btn .nqb-icon{font-size:18px}
+        .notif-quick-btn.nq-active{background:rgba(0,255,65,0.1);color:var(--green)}
 
-        /* Subtle macOS hover behavior */
-        #title-bar:hover .close {
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+        /* ═══════ TOAST NOTIFICATIONS ═══════ */
+        #toast-container{position:fixed;bottom:60px;right:16px;z-index:8000;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none}
+        .toast{
+            background:#1c2128;border:1px solid var(--window-border);border-radius:10px;
+            padding:14px 18px;display:flex;gap:12px;align-items:flex-start;
+            box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:300px;max-width:380px;
+            font-family:'Inter',system-ui,sans-serif;pointer-events:auto;
+            animation:toastIn 0.3s ease-out forwards;cursor:pointer;
         }
+        .toast.removing{animation:toastOut 0.3s ease-in forwards}
+        @keyframes toastIn{0%{opacity:0;transform:translateX(100px)}100%{opacity:1;transform:translateX(0)}}
+        @keyframes toastOut{0%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(100px)}}
+        .toast-icon{font-size:22px;flex-shrink:0}
+        .toast-text{flex:1}
+        .toast-title{font-size:12px;font-weight:600;color:#e6edf3}
+        .toast-body{font-size:11px;color:#8b949e;margin-top:2px}
 
-        #title-bar:hover .minimize {
-            opacity: 1;
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+        /* ═══════ RIGHT-CLICK MENU ═══════ */
+        .context-menu{position:fixed;display:none;background:#1c2128;border:1px solid var(--window-border);border-radius:8px;padding:4px;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:700;font-family:'Inter',system-ui,sans-serif;font-size:12px}
+        .context-menu.show{display:block}
+        .context-item{display:flex;align-items:center;gap:10px;padding:7px 12px;color:#c9d1d9;border-radius:5px;cursor:pointer;transition:background 0.1s}
+        .context-item:hover{background:rgba(255,255,255,0.06)}
+        .context-item.disabled{color:#484f58;pointer-events:none}
+        .context-separator{height:1px;background:var(--window-border);margin:4px 8px}
+        .ctx-icon{width:18px;text-align:center;font-size:13px}
+
+        /* ═══════ BSOD ═══════ */
+        #bsod{position:fixed;inset:0;background:#0078d7;z-index:999999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;font-family:'Inter',system-ui,sans-serif}
+        #bsod .bsod-sad{font-size:100px;margin-bottom:20px}
+        #bsod .bsod-title{font-size:28px;color:#fff;font-weight:300;margin-bottom:16px}
+        #bsod .bsod-msg{font-size:14px;color:rgba(255,255,255,0.8);max-width:600px;line-height:1.6;text-align:center}
+        #bsod .bsod-pct{font-size:18px;color:#fff;margin-top:30px}
+        #bsod .bsod-code{font-size:11px;color:rgba(255,255,255,0.5);margin-top:40px}
+        #bsod .bsod-qr{width:80px;height:80px;background:rgba(255,255,255,0.15);border-radius:4px;margin-top:20px;display:flex;align-items:center;justify-content:center;font-size:32px}
+
+        /* ═══════ SHUTDOWN ═══════ */
+        #shutdown-screen{position:fixed;inset:0;background:#000;z-index:999998;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+        .shutdown-spinner{width:40px;height:40px;border:3px solid #333;border-top:3px solid var(--green);border-radius:50%;animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .shutdown-text{font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#fff}
+
+        /* ═══════ SNAKE GAME ═══════ */
+        .snake-body{background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;height:100%}
+        .snake-canvas{border:2px solid var(--green);box-shadow:0 0 20px var(--green-glow),inset 0 0 20px rgba(0,255,65,0.05);background:#0a0a0a;image-rendering:pixelated}
+        .snake-hud{display:flex;justify-content:space-between;width:100%;max-width:320px;font-family:'Inter',system-ui,sans-serif;font-size:12px;color:#8b949e}
+        .snake-hud .sh-score{color:var(--green);font-weight:700;font-size:14px}
+        .snake-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:10;font-family:'Inter',system-ui,sans-serif}
+        .snake-overlay .so-title{font-size:20px;font-weight:700;color:var(--green);text-shadow:0 0 15px var(--green-glow)}
+        .snake-overlay .so-sub{font-size:13px;color:#8b949e}
+        .snake-overlay .so-btn{background:var(--green);color:#000;border:none;padding:8px 24px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:transform 0.1s,box-shadow 0.2s}
+        .snake-overlay .so-btn:hover{transform:scale(1.05);box-shadow:0 0 15px var(--green-glow)}
+        .snake-mobile-controls{display:none;gap:4px}
+        .snake-mobile-controls button{width:48px;height:48px;background:rgba(0,255,65,0.1);border:1px solid var(--green);border-radius:8px;color:var(--green);font-size:20px;cursor:pointer}
+        @media(max-width:768px){.snake-mobile-controls{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);justify-content:center}}
+
+        /* ═══════ TETRIS GAME ═══════ */
+        .tetris-body{background:#0a0a0a;display:flex;align-items:flex-start;justify-content:center;gap:16px;padding:16px;height:100%}
+        .tetris-canvas{border:2px solid var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.3),inset 0 0 20px rgba(0,212,255,0.05);background:#0a0a0a;image-rendering:pixelated}
+        .tetris-sidebar{display:flex;flex-direction:column;gap:12px;font-family:'Inter',system-ui,sans-serif;min-width:100px}
+        .tetris-sidebar .ts-label{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#484f58;font-weight:600}
+        .tetris-sidebar .ts-value{font-size:18px;font-weight:700;color:var(--cyan);text-shadow:0 0 10px rgba(0,212,255,0.3)}
+        .tetris-next-canvas{border:1px solid var(--window-border);background:#111;image-rendering:pixelated}
+        .tetris-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:10;font-family:'Inter',system-ui,sans-serif}
+        .tetris-overlay .to-title{font-size:20px;font-weight:700;color:var(--cyan);text-shadow:0 0 15px rgba(0,212,255,0.5)}
+        .tetris-overlay .to-sub{font-size:13px;color:#8b949e}
+        .tetris-overlay .to-btn{background:var(--cyan);color:#000;border:none;padding:8px 24px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:transform 0.1s,box-shadow 0.2s}
+        .tetris-overlay .to-btn:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(0,212,255,0.5)}
+        .tetris-mobile-controls{display:none;gap:4px}
+        .tetris-mobile-controls button{width:44px;height:44px;background:rgba(0,212,255,0.1);border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);font-size:18px;cursor:pointer}
+        @media(max-width:768px){.tetris-mobile-controls{display:grid;grid-template-columns:repeat(4,44px);justify-content:center}}
+
+        /* Matrix */
+        #matrix-canvas{position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0;transition:opacity 0.5s}
+        #matrix-canvas.active{opacity:0.7}
+
+        /* ═══════ RESPONSIVE ═══════ */
+        @media(max-width:768px){
+            .os-window.terminal-win{top:0!important;left:0!important;width:100vw!important;height:calc(100vh - 48px)!important;border-radius:0;border:none;transform:none!important}
+            .desktop-icons{display:none}.tab-bar{display:none}.taskbar-search{display:none}
+            #start-menu{width:calc(100vw - 24px);left:12px}
+            #notif-center{width:calc(100vw - 24px);right:12px}
         }
-
-        #title-bar:hover .maximize {
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
-        }
-
-        .title-text {
-            pointer-events: none;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-            opacity: 0.9;
-        }
-
-        #terminal {
-            color: var(--green);
-            padding: 15px;
-            height: 500px;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        #output {
-            white-space: pre;
-        }
-
-        .prompt-line {
-            display: flex;
-        }
-
-        .prompt {
-            margin-right: 6px;
-        }
-
-        input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--green);
-            font-family: inherit;
-            font-size: 1em;
-            flex: 1;
-            caret-color: var(--green);
-        }
-
-        /* Mobile Support Button */
-        #mobile-keyboard-btn {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--green);
-            color: #000;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(51,255,51,0.3);
-            z-index: 1000;
-            user-select: none;
-        }
-
-            #mobile-keyboard-btn:active {
-                transform: scale(0.95);
-            }
-
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            #cmd-window {
-                width: 100%;
-                max-width: 100%;
-                height: 100vh;
-                border: none;
-            }
-
-            #terminal {
-                height: calc(100vh - 40px);
-                font-size: 14px;
-            }
-
-            #mobile-keyboard-btn {
-                display: block;
-            }
+        @media(max-width:480px){
+            .terminal-body{padding:10px 12px}body{font-size:11px}
+            .tray-date{display:none}
+            #start-menu .start-grid{grid-template-columns:repeat(3,1fr)}
         }
     </style>
-    <link rel="stylesheet" href="background.css">
 </head>
-
 <body>
-    <div id="cmd-window">
-        <div id="title-bar">
-            <div class="window-buttons">
-                <div class="btn close"></div>
-                <div class="btn minimize"></div>
-                <div class="btn maximize"></div>
-            </div>
 
-            <div class="tab-bar" id="tabBar">
-                <div class="tab active">Command Prompt</div>
-                <div class="tab-add" id="addTab">+</div>
+<!-- BIOS Screen -->
+<div id="bios-screen"></div>
+
+<!-- Login Screen -->
+<div id="login-screen">
+    <div class="login-container">
+        <div class="login-avatar">🛡️</div>
+        <div class="login-name">admin</div>
+        <div style="display:flex;align-items:center;gap:8px">
+            <div class="login-input-wrap">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" id="login-password" placeholder="Password" autocomplete="off">
             </div>
+            <button class="login-submit" onclick="tryLogin()">→</button>
         </div>
+        <div class="login-hint">Hint: just press Enter or type anything</div>
+        <div class="login-error" id="login-error"></div>
+    </div>
+    <div class="login-time">
+        <div class="lt-time" id="login-time-display"></div>
+        <div class="lt-date" id="login-date-display"></div>
+    </div>
+</div>
 
+<!-- Desktop -->
+<div id="desktop-screen">
+    <div class="crt"></div>
+    <canvas id="matrix-canvas"></canvas>
 
-        <div id="terminal">
-            <div id="output"></div>
-            <div class="prompt-line" id="prompt" style="display:none">
-                <span class="prompt">C:\Users\NullFrag&gt;</span>
-                <input id="cmd" disabled autofocus>
-            </div>
+    <div class="desktop-area" id="desktop-area">
+        <div class="desktop-icons">
+            <div class="desktop-icon" ondblclick="openTerminal()"><div class="icon-img">🖥️</div><div class="icon-label">Terminal</div></div>
+            <div class="desktop-icon" ondblclick="openNotepad()"><div class="icon-img">📄</div><div class="icon-label">README</div></div>
+            <div class="desktop-icon" ondblclick="openExplorer()"><div class="icon-img">📁</div><div class="icon-label">Projects</div></div>
+            <div class="desktop-icon" ondblclick="showToast('🗑️','Recycle Bin','Recycle Bin is empty.')"><div class="icon-img">🗑️</div><div class="icon-label">Recycle Bin</div></div>
         </div>
     </div>
 
-    <!-- Mobile keyboard button -->
-    <div id="mobile-keyboard-btn">⌨️ Type Command</div>
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <div class="start-btn" id="start-btn" onclick="toggleStartMenu()">
+                <div class="start-icon"><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="taskbar-divider"></div>
+            <div class="taskbar-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Search</span></div>
+            <div class="taskbar-divider"></div>
+            <div class="taskbar-apps" id="taskbar-apps">
+                <div class="taskbar-app active-app" data-win="terminal" title="Terminal" onclick="focusWindow('terminal')">🖥️</div>
+                <div class="taskbar-app" data-win="notepad" title="Notepad" onclick="focusWindow('notepad')">📄</div>
+                <div class="taskbar-app" data-win="explorer" title="Files" onclick="focusWindow('explorer')">📁</div>
+            </div>
+        </div>
+        <div class="taskbar-right">
+            <div class="system-tray"><div class="tray-icon">📶</div><div class="tray-icon">🔊</div><div class="tray-icon">🔋</div></div>
+            <div class="tray-clock" onclick="toggleNotifCenter()">
+                <span class="tray-time" id="taskbar-time"></span>
+                <span class="tray-date" id="taskbar-date"></span>
+            </div>
+            <div class="show-desktop" onclick="minimizeAll()"></div>
+        </div>
+    </div>
+</div>
 
-    <script>
-    //global
-        const NF_CTF_FLAG = "NF{debuggers_see_more}";
-        const output = document.getElementById("output");
-        const cmdInput = document.getElementById("cmd");
-        const promptEl = document.getElementById("prompt");
-        const terminal = document.getElementById("terminal");
-        const mobileBtn = document.getElementById("mobile-keyboard-btn");
+<!-- Start Menu -->
+<div id="start-menu">
+    <div class="start-header"><span class="start-header-title">NullFrag OS</span></div>
+    <div class="start-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Type to search..." autocomplete="off">
+    </div>
+    <div class="start-section">
+        <div class="start-section-title">Pinned</div>
+        <div class="start-grid">
+            <div class="start-app" onclick="closeStartMenu();openTerminal()"><span class="start-app-icon">🖥️</span><span class="start-app-name">Terminal</span></div>
+            <div class="start-app" onclick="closeStartMenu();openNotepad()"><span class="start-app-icon">📄</span><span class="start-app-name">Notepad</span></div>
+            <div class="start-app" onclick="closeStartMenu();openExplorer()"><span class="start-app-icon">📁</span><span class="start-app-name">Files</span></div>
+            <div class="start-app" onclick="closeStartMenu();showToast('⚙️','Settings','Settings app coming soon.')"><span class="start-app-icon">⚙️</span><span class="start-app-name">Settings</span></div>
+            <div class="start-app" onclick="closeStartMenu();showToast('🌐','Browser','Browser not installed.')"><span class="start-app-icon">🌐</span><span class="start-app-name">Browser</span></div>
+            <div class="start-app" onclick="closeStartMenu();openSnake()"><span class="start-app-icon">🐍</span><span class="start-app-name">Snake</span></div>
+            <div class="start-app" onclick="closeStartMenu();openTetris()"><span class="start-app-icon">🧱</span><span class="start-app-name">Tetris</span></div>
+            <div class="start-app" onclick="closeStartMenu();showToast('🎵','Music','No tracks found.')"><span class="start-app-icon">🎵</span><span class="start-app-name">Music</span></div>
+            <div class="start-app" onclick="closeStartMenu();showToast('🛒','Store','NullFrag Store offline.')"><span class="start-app-icon">🛒</span><span class="start-app-name">Store</span></div>
+        </div>
+    </div>
+    <div class="start-recent">
+        <div class="start-section-title" style="padding:8px 10px 6px;font-size:11px;font-weight:600;color:#484f58;text-transform:uppercase;letter-spacing:0.5px">Recent</div>
+        <div class="start-recent-item" onclick="closeStartMenu();openNotepad()"><span class="sri-icon">📄</span>README.md — Edited 2 hours ago</div>
+        <div class="start-recent-item" onclick="closeStartMenu();openTerminal()"><span class="sri-icon">🖥️</span>Terminal Session — 5 commands</div>
+        <div class="start-recent-item" onclick="closeStartMenu();openExplorer()"><span class="sri-icon">📁</span>Projects — 3 items</div>
+    </div>
+    <div class="start-footer">
+        <div class="start-user"><div class="start-user-avatar">🛡️</div><span class="start-user-name">admin</span></div>
+        <div class="start-power">
+            <div class="start-power-btn" title="Sleep" onclick="doSleep()">😴</div>
+            <div class="start-power-btn" title="Restart" onclick="doRestart()">🔄</div>
+            <div class="start-power-btn" title="Shut Down" onclick="doShutdown()">⏻</div>
+        </div>
+    </div>
+</div>
 
-        let commandRunning = false;
-        let mode = "boot";
-        let isBooting = true;
-        const history = [];
-        let historyIndex = -1;
-        let currentDir = "";
-        let skipTyping = false;
+<!-- Notification Center -->
+<div id="notif-center">
+    <div class="notif-header"><span class="notif-header-title">Notifications</span><span class="notif-clear" onclick="clearNotifs()">Clear all</span></div>
+    <div class="notif-list" id="notif-list">
+        <div class="notif-item"><span class="notif-icon">🛡️</span><div class="notif-content"><div class="notif-title">Security</div><div class="notif-body">System integrity check passed. All modules verified.</div><div class="notif-time">2 minutes ago</div></div></div>
+        <div class="notif-item"><span class="notif-icon">🔔</span><div class="notif-content"><div class="notif-title">Welcome</div><div class="notif-body">Welcome back to NullFrag OS. Type 'help' in terminal for available commands.</div><div class="notif-time">Just now</div></div></div>
+        <div class="notif-item"><span class="notif-icon">📦</span><div class="notif-content"><div class="notif-title">Updates</div><div class="notif-body">NullFrag OS is up to date. Build 19045.4046</div><div class="notif-time">1 hour ago</div></div></div>
+    </div>
+    <div class="notif-quick">
+        <div class="notif-quick-btn nq-active"><span class="nqb-icon">📶</span>Wi-Fi</div>
+        <div class="notif-quick-btn"><span class="nqb-icon">✈️</span>Airplane</div>
+        <div class="notif-quick-btn nq-active"><span class="nqb-icon">🔋</span>Saver</div>
+        <div class="notif-quick-btn"><span class="nqb-icon">🌙</span>Night</div>
+        <div class="notif-quick-btn nq-active"><span class="nqb-icon">🔒</span>VPN</div>
+        <div class="notif-quick-btn"><span class="nqb-icon">📡</span>Hotspot</div>
+    </div>
+</div>
 
-        const promptRoot = "C:\\Users\\NullFrag>";
-        const promptResume = "C:\\Users\\NullFrag\\resume>";
+<!-- Toast Notifications -->
+<div id="toast-container"></div>
 
-        // Fake filesystem contents
-        const filesInRoot = ["resume"];
-        const filesInResume = ["resume.txt"];
+<!-- Context Menu -->
+<div class="context-menu" id="context-menu">
+    <div class="context-item" onclick="location.reload()"><span class="ctx-icon">🔄</span>Refresh</div>
+    <div class="context-separator"></div>
+    <div class="context-item" onclick="openTerminal()"><span class="ctx-icon">🖥️</span>Open Terminal</div>
+    <div class="context-item" onclick="openNotepad()"><span class="ctx-icon">📄</span>Open Notepad</div>
+    <div class="context-item" onclick="openExplorer()"><span class="ctx-icon">📁</span>Open Files</div>
+    <div class="context-separator"></div>
+    <div class="context-item" onclick="showToast('⚙️','Display Settings','Resolution: 1920×1080 @ 60Hz')"><span class="ctx-icon">⚙️</span>Display Settings</div>
+    <div class="context-item" onclick="showToast('ℹ️','About','NullFrag OS v1.0 Build 19045.4046')"><span class="ctx-icon">ℹ️</span>About NullFrag OS</div>
+</div>
 
-        /* ---------------- COMMAND DATA ---------------- */
-        const data = {
-            help: `
-Available commands:
-          help          - Show this help message
-          whoami        - Display user information
-          resume        - Show resume
-          skills        - List technical skills
-          projects      - Display projects
-          contact       - Contact information
-          snake         - Play snake game
-          ping <target> - Ping a target
-          clear         - Clear screen
-`,
-            whoami: `
-Paramdeep Singh
-Security Researcher / Software Engineer
-`,
-            resume: `
-NAME     : Paramdeep Singh
-ROLE     : Security Researcher / Software Engineer
+<!-- BSOD -->
+<div id="bsod">
+    <div class="bsod-sad">:(</div>
+    <div class="bsod-title">Your PC ran into a problem and needs to restart.</div>
+    <div class="bsod-msg">We're just collecting some error info, and then we'll restart for you.</div>
+    <div class="bsod-pct" id="bsod-pct">0% complete</div>
+    <div class="bsod-code">Stop code: NULLFRAG_SECURITY_BREACH</div>
+    <div class="bsod-qr">■</div>
+</div>
 
-SUMMARY:
-Focused on Windows internals, low-level tooling,
-credential access research, and stealthy C# utilities.
-`,
-            skills: `
-Languages:
-          C / C++
-          C#
-          Python
-          PowerShell
+<!-- Shutdown -->
+<div id="shutdown-screen">
+    <div class="shutdown-spinner"></div>
+    <div class="shutdown-text" id="shutdown-text">Shutting down...</div>
+</div>
 
-Security:
-          Windows Internals
-          LSASS
-          Malware Evasion
-`,
-            projects: `
-• LSASS Dump Monitor (C#)
-• In-memory Obfuscation Engine
-• Native Win32 Dump Utility
-`,
-            contact: `
-Email  : admin@nullfrag.online
-GitHub : https://github.com/zedxod
-`,
+<script>
+// ══════════════════════════════════════
+//   CORE STATE
+// ══════════════════════════════════════
+const windows = {};
+let topZ = 150;
+let commandHistory = [];
+let historyIndex = -1;
+let matrixRunning = false;
 
-            // Hidden / easter egg commands
-            ver: "Microsoft Windows [Version 10.0.19045.4046 (NullFrag Edition)]",
-            tasklist: `
-Image Name                     PID Session Name        Mem Usage
-========================= ======== ================ ============
-lsass.exe                    688   Services             34,512 K
-NullFrag                    1337   Console               1,024 K
-System Idle Process          276   Services                  8 K
-svchost.exe                 8924   Console              48,056 K
-brave.exe                  18108   Console             301,948 K
-cmd.exe                    24288   Console               5,780 K
-kaspersky-service.exe      24288   Console               5,780 K`,
-            sudo: "sudo: effective uid is still 0, nice try tho ;)"
-        };
+// ══════════════════════════════════════
+//   PHASE 1: BIOS POST
+// ══════════════════════════════════════
+const biosScreen = document.getElementById('bios-screen');
 
-        const hiddenCommands = ["ver", "tasklist", "sudo", "traceroute", "date", "time", "matrix", "hack", "tree", "dir", "ls", "cd", "cat"];
+const BIOS_ASCII = ` ╔═══════════════════════════════════════╗
+ ║   NullFrag BIOS v4.2.0                ║
+ ║   Copyright (C) NullFrag Corp.        ║
+ ╚═══════════════════════════════════════╝`;
 
-        /* ---------------- UTIL ---------------- */
-        function print(line = "") {
-            output.textContent += line + "\n";
-            terminal.scrollTop = terminal.scrollHeight;
+const biosLines = [
+    { text: BIOS_ASCII, cls: 'bios-logo', delay: 300 },
+    { html: '<span class="bios-highlight">NullCore(R) i9-13900K @ 4.20GHz</span>', delay: 200 },
+    { html: 'Memory Test: <span class="bios-highlight">16384 MB OK</span>', delay: 300 },
+    { text: '', delay: 100 },
+    { html: 'Detecting Primary Master... <span class="bios-ok">[NullDrive SSD 1TB]</span>', delay: 250 },
+    { html: 'Detecting Secondary Master... <span class="bios-ok">[NullDrive HDD 4TB]</span>', delay: 200 },
+    { html: 'Detecting USB Devices... <span class="bios-ok">[2 devices found]</span>', delay: 150 },
+    { text: '', delay: 100 },
+    { html: 'GPU: <span class="bios-highlight">NullForce RTX 5090 24GB</span>', delay: 200 },
+    { html: 'Network: <span class="bios-ok">NullNet Gigabit Ethernet</span>', delay: 150 },
+    { text: '', delay: 100 },
+    { html: 'Verifying Secure Boot... <span class="bios-ok">PASSED</span>', delay: 300 },
+    { html: 'Loading TPM 2.0 Module... <span class="bios-ok">OK</span>', delay: 200 },
+    { text: '', delay: 100 },
+    { html: '<span class="bios-warn">Press DEL to enter BIOS Setup, F12 for Boot Menu</span>', delay: 400 },
+    { text: '', delay: 100 },
+    { html: 'Booting from NullDrive SSD...', delay: 500, progress: true },
+];
+
+async function runBios() {
+    for (const item of biosLines) {
+        const div = document.createElement('div');
+        div.className = 'bios-line';
+        if (item.cls) div.classList.add(item.cls);
+
+        if (item.html) div.innerHTML = item.html;
+        else if (item.text !== undefined) {
+            const pre = document.createElement('pre');
+            pre.style.cssText = 'margin:0;font:inherit;color:inherit;text-shadow:inherit;line-height:inherit';
+            pre.textContent = item.text;
+            div.appendChild(pre);
         }
+        biosScreen.appendChild(div);
+        await wait(40);
+        div.classList.add('show');
 
-        // Blocking typing for boot sequence only
-        async function typeLine(text, delay = 14) {
-            if (!text) { print(""); return; }
-            if (skipTyping) {
-                print(text);
-                skipTyping = false;
-                return;
+        if (item.progress) {
+            const track = document.createElement('div');
+            track.className = 'bios-bar-track';
+            const fill = document.createElement('div');
+            fill.className = 'bios-bar-fill';
+            track.appendChild(fill);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bios-line show';
+            wrapper.appendChild(track);
+            biosScreen.appendChild(wrapper);
+            for (let p = 0; p <= 100; p += 3) {
+                fill.style.width = p + '%';
+                await wait(15);
             }
-            let buf = "";
-            for (const c of text) {
-                buf += c;
-                output.textContent = output.textContent.replace(/[^\n]*$/, buf);
-                await new Promise(r => setTimeout(r, delay));
+            fill.style.width = '100%';
+        }
+        await wait(item.delay);
+    }
+    await wait(300);
+    biosScreen.style.transition = 'opacity 0.5s';
+    biosScreen.style.opacity = '0';
+    await wait(500);
+    biosScreen.style.display = 'none';
+    showLoginScreen();
+}
+
+// ══════════════════════════════════════
+//   PHASE 2: LOGIN SCREEN
+// ══════════════════════════════════════
+const loginScreen = document.getElementById('login-screen');
+
+function showLoginScreen() {
+    loginScreen.style.display = 'flex';
+    updateLoginClock();
+    setInterval(updateLoginClock, 1000);
+    document.getElementById('login-password').focus();
+}
+
+function updateLoginClock() {
+    const now = new Date();
+    const el1 = document.getElementById('login-time-display');
+    const el2 = document.getElementById('login-date-display');
+    if (el1) el1.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    if (el2) el2.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+document.getElementById('login-password').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tryLogin();
+});
+
+function tryLogin() {
+    loginScreen.style.transition = 'opacity 0.6s';
+    loginScreen.style.opacity = '0';
+    setTimeout(() => {
+        loginScreen.style.display = 'none';
+        enterDesktop();
+    }, 600);
+}
+
+// ══════════════════════════════════════
+//   PHASE 3: DESKTOP
+// ══════════════════════════════════════
+function enterDesktop() {
+    document.getElementById('desktop-screen').style.display = 'flex';
+    updateTaskbarClock();
+    setInterval(updateTaskbarClock, 1000);
+    // Auto-open terminal
+    setTimeout(() => openTerminal(), 400);
+    // Welcome toast
+    setTimeout(() => showToast('🛡️', 'NullFrag Security', 'All systems operational. Welcome.'), 2000);
+    setTimeout(() => showToast('🔔', 'Tip', 'Try typing "bsod" or "hack" in the terminal!'), 5000);
+}
+
+function updateTaskbarClock() {
+    const now = new Date();
+    const t = document.getElementById('taskbar-time');
+    const d = document.getElementById('taskbar-date');
+    if (t) t.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    if (d) d.textContent = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ══════════════════════════════════════
+//   WINDOW SYSTEM
+// ══════════════════════════════════════
+function createWindow(id, title, icon, x, y, w, h, bodyHtml, extraClass) {
+    if (windows[id]) { focusWindow(id); return windows[id].el; }
+
+    const el = document.createElement('div');
+    el.className = 'os-window' + (extraClass ? ' ' + extraClass : '');
+    el.id = 'win-' + id;
+    el.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;`;
+
+    el.innerHTML = `
+        <div class="win-titlebar" data-win-id="${id}">
+            <div class="win-titlebar-left">
+                <span class="win-titlebar-icon">${icon}</span>
+                <span class="win-titlebar-text">${title}</span>
+            </div>
+            <div class="win-buttons">
+                <div class="win-btn" onclick="minimizeWin('${id}')"><svg viewBox="0 0 10 10"><line x1="1" y1="5" x2="9" y2="5"/></svg></div>
+                <div class="win-btn" onclick="maximizeWin('${id}')"><svg viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" rx="1"/></svg></div>
+                <div class="win-btn close-btn" onclick="closeWin('${id}')"><svg viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></div>
+            </div>
+        </div>
+        ${bodyHtml}`;
+
+    document.getElementById('desktop-area').appendChild(el);
+    windows[id] = { el, maximized: false, origStyle: el.style.cssText };
+    focusWindow(id);
+    updateTaskbarApps();
+
+    // Drag
+    const tb = el.querySelector('.win-titlebar');
+    let dragging = false, dx, dy;
+    tb.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.win-btn') || windows[id].maximized) return;
+        dragging = true;
+        dx = e.clientX - el.getBoundingClientRect().left;
+        dy = e.clientY - el.getBoundingClientRect().top;
+        el.style.transition = 'none';
+    });
+    const onMove = (e) => { if (!dragging) return; el.style.left = (e.clientX - dx) + 'px'; el.style.top = (e.clientY - dy) + 'px'; };
+    const onUp = () => { dragging = false; el.style.transition = ''; };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+
+    el.addEventListener('mousedown', () => focusWindow(id));
+
+    return el;
+}
+
+function focusWindow(id) {
+    if (!windows[id]) return;
+    windows[id].el.style.display = 'flex';
+    topZ++;
+    Object.values(windows).forEach(w => w.el.classList.remove('focused'));
+    windows[id].el.style.zIndex = topZ;
+    windows[id].el.classList.add('focused');
+    updateTaskbarApps();
+}
+
+function minimizeWin(id) { if (windows[id]) windows[id].el.style.display = 'none'; }
+
+function maximizeWin(id) {
+    const w = windows[id]; if (!w) return;
+    if (w.maximized) {
+        w.el.style.cssText = w.origStyle + `z-index:${w.el.style.zIndex};display:flex;`;
+        w.maximized = false;
+    } else {
+        w.origStyle = `left:${w.el.style.left};top:${w.el.style.top};width:${w.el.style.width};height:${w.el.style.height};`;
+        w.el.style.cssText = `left:0;top:0;width:100%;height:calc(100% - 48px);border-radius:0;z-index:${w.el.style.zIndex};display:flex;`;
+        w.maximized = true;
+    }
+}
+
+function closeWin(id) {
+    if (!windows[id]) return;
+    const el = windows[id].el;
+    el.style.animation = 'winClose 0.2s ease-in forwards';
+    setTimeout(() => { el.remove(); delete windows[id]; updateTaskbarApps(); }, 200);
+}
+
+function minimizeAll() {
+    Object.keys(windows).forEach(id => minimizeWin(id));
+}
+
+function updateTaskbarApps() {
+    document.querySelectorAll('.taskbar-app').forEach(btn => {
+        const wid = btn.dataset.win;
+        if (wid && windows[wid]) btn.classList.add('active-app');
+        else if (wid) btn.classList.remove('active-app');
+    });
+}
+
+// ══════════════════════════════════════
+//   TERMINAL WINDOW
+// ══════════════════════════════════════
+function openTerminal() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(920, vw - 80), h = Math.min(560, vh - 120);
+    const x = (vw - w) / 2, y = (vh - 48 - h) / 2;
+
+    const bodyHtml = `
+        <div class="tab-bar">
+            <div class="tab active"><span>⬛ admin</span><span class="tab-close">×</span></div>
+            <div class="tab-new">+</div>
+        </div>
+        <div class="terminal-body" id="terminal"></div>
+        <div class="input-area" id="input-area">
+            <span class="prompt-symbol">admin@nullfrag ~$</span>
+            <input type="text" id="command-input" autocomplete="off" spellcheck="false">
+        </div>`;
+
+    const el = createWindow('terminal', 'NullFrag Terminal', '>', x, y, w, h, bodyHtml, 'terminal-win');
+    if (!document.getElementById('terminal')._booted) {
+        document.getElementById('terminal')._booted = true;
+        setupTerminalInput();
+        bootSequence();
+    }
+}
+
+function setupTerminalInput() {
+    const cmdInput = document.getElementById('command-input');
+    const term = document.getElementById('terminal');
+
+    cmdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            executeCommand(cmdInput.value);
+            cmdInput.value = '';
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (historyIndex < commandHistory.length - 1) { historyIndex++; cmdInput.value = commandHistory[historyIndex]; }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (historyIndex > 0) { historyIndex--; cmdInput.value = commandHistory[historyIndex]; }
+            else { historyIndex = -1; cmdInput.value = ''; }
+        } else if (e.key === 'Tab') {
+            e.preventDefault();
+            const partial = cmdInput.value.trim().toLowerCase();
+            const matches = Object.keys(COMMANDS).filter(c => c.startsWith(partial));
+            if (matches.length === 1) cmdInput.value = matches[0];
+            else if (matches.length > 1) { showLine(`<span class="dim">  ${matches.join('  ')}</span>`); scrollToBottom(); }
+        }
+    });
+
+    term.addEventListener('click', () => cmdInput.focus());
+}
+
+// ══════════════════════════════════════
+//   NOTEPAD WINDOW
+// ══════════════════════════════════════
+function openNotepad() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(600, vw - 100), h = Math.min(450, vh - 140);
+    const x = (vw - w) / 2 + 30, y = (vh - 48 - h) / 2 + 20;
+
+    const bodyHtml = `<div class="win-body notepad-body">
+<span class="np-comment"># ═══════════════════════════════════════</span>
+<span class="np-comment">#  README.md — Paramdeep Singh</span>
+<span class="np-comment"># ═══════════════════════════════════════</span>
+
+<span class="np-key">name:</span>        <span class="np-val">Paramdeep Singh</span>
+<span class="np-key">title:</span>       <span class="np-str">"Code Architect • System Breaker • Digital Alchemist"</span>
+<span class="np-key">location:</span>    <span class="np-val">New Delhi, India</span>
+<span class="np-key">email:</span>       <span class="np-val">ps7855@gmail.com</span>
+<span class="np-key">status:</span>      <span class="np-val">Online</span>
+
+<span class="np-comment"># ── About ──</span>
+<span class="np-str">Hey! I'm Paramdeep Singh — a developer and tech
+enthusiast who loves building things that live on
+the edge of creativity and code.</span>
+
+<span class="np-str">"Breaking things to understand how they work."</span>
+
+<span class="np-comment"># ── Currently Working On ──</span>
+<span class="np-key">▸</span> <span class="np-val">NullFrag OS</span> — This terminal portfolio
+<span class="np-key">▸</span> <span class="np-val">MicroCRM</span> — microcrm.store
+<span class="np-key">▸</span> <span class="np-val">Learning</span> — Always
+
+<span class="np-comment"># ── Fun Facts ──</span>
+<span class="np-key">▸</span> I use <span class="np-val">dark mode</span> for everything
+<span class="np-key">▸</span> My terminal is my <span class="np-val">comfort zone</span>
+<span class="np-key">▸</span> Coffee consumption: <span class="np-val">████████░░ 80%</span>
+
+<span class="np-comment"># ═══════════════════════════════════════</span></div>`;
+
+    createWindow('notepad', 'README.md — Notepad', '📄', x, y, w, h, bodyHtml);
+}
+
+// ══════════════════════════════════════
+//   FILE EXPLORER WINDOW
+// ══════════════════════════════════════
+function openExplorer() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(700, vw - 80), h = Math.min(450, vh - 140);
+    const x = (vw - w) / 2 - 20, y = (vh - 48 - h) / 2 - 10;
+
+    const bodyHtml = `<div class="win-body explorer-body" style="display:flex;flex-direction:column;height:100%">
+        <div class="explorer-toolbar">
+            <span style="cursor:pointer;font-size:14px;color:#8b949e">←</span>
+            <span style="cursor:pointer;font-size:14px;color:#8b949e">→</span>
+            <div class="explorer-path">📁 /home/admin/projects</div>
+        </div>
+        <div class="explorer-main">
+            <div class="explorer-sidebar">
+                <div class="explorer-sidebar-item active-item">📁 Projects</div>
+                <div class="explorer-sidebar-item">🏠 Home</div>
+                <div class="explorer-sidebar-item">📄 Documents</div>
+                <div class="explorer-sidebar-item">🖼️ Pictures</div>
+                <div class="explorer-sidebar-item">💾 Downloads</div>
+                <div class="explorer-sidebar-item">🗑️ Trash</div>
+            </div>
+            <div class="explorer-content">
+                <div class="explorer-file" ondblclick="showToast('📁','NullFrag OS','Terminal-themed portfolio website — HTML, CSS, JS')"><div class="ef-icon">📁</div><div class="ef-name">nullfrag-os</div></div>
+                <div class="explorer-file" ondblclick="showToast('📁','MicroCRM','CRM platform — microcrm.store')"><div class="ef-icon">📁</div><div class="ef-name">microcrm</div></div>
+                <div class="explorer-file" ondblclick="showToast('📄','README','Opening README...')"><div class="ef-icon">📄</div><div class="ef-name">README.md</div></div>
+                <div class="explorer-file" ondblclick="showToast('⚙️','Config','package.json — Project configuration')"><div class="ef-icon">⚙️</div><div class="ef-name">package.json</div></div>
+                <div class="explorer-file" ondblclick="showToast('🔒','Secrets','.env — Nice try! Access denied.')"><div class="ef-icon">🔒</div><div class="ef-name">.env</div></div>
+                <div class="explorer-file" ondblclick="showToast('📁','node_modules','184,293 packages. Good luck.')"><div class="ef-icon">📁</div><div class="ef-name">node_modules</div></div>
+                <div class="explorer-file" ondblclick="showToast('🎵','Music','secret_playlist.mp3')"><div class="ef-icon">🎵</div><div class="ef-name">vibes.mp3</div></div>
+            </div>
+        </div>
+    </div>`;
+
+    createWindow('explorer', 'Files — Projects', '📁', x, y, w, h, bodyHtml);
+}
+
+// ══════════════════════════════════════
+//   START MENU & NOTIFICATION CENTER
+// ══════════════════════════════════════
+const startMenu = document.getElementById('start-menu');
+const notifCenter = document.getElementById('notif-center');
+
+function toggleStartMenu() {
+    notifCenter.classList.remove('show');
+    startMenu.classList.toggle('show');
+}
+function closeStartMenu() { startMenu.classList.remove('show'); }
+
+function toggleNotifCenter() {
+    startMenu.classList.remove('show');
+    notifCenter.classList.toggle('show');
+}
+
+function clearNotifs() {
+    document.getElementById('notif-list').innerHTML = '<div style="padding:40px;text-align:center;color:#484f58;font-size:13px">No new notifications</div>';
+}
+
+// Close menus on outside click
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#start-menu') && !e.target.closest('#start-btn')) startMenu.classList.remove('show');
+    if (!e.target.closest('#notif-center') && !e.target.closest('.tray-clock')) notifCenter.classList.remove('show');
+    document.getElementById('context-menu').classList.remove('show');
+});
+
+// Quick-toggle buttons
+document.querySelectorAll('.notif-quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => btn.classList.toggle('nq-active'));
+});
+
+// ══════════════════════════════════════
+//   TOAST NOTIFICATIONS
+// ══════════════════════════════════════
+function showToast(icon, title, body) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span class="toast-icon">${icon}</span><div class="toast-text"><div class="toast-title">${title}</div><div class="toast-body">${body}</div></div>`;
+    container.appendChild(toast);
+    toast.addEventListener('click', () => { toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); });
+    setTimeout(() => { if (toast.parentNode) { toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); } }, 4000);
+}
+
+// ══════════════════════════════════════
+//   RIGHT-CLICK CONTEXT MENU
+// ══════════════════════════════════════
+document.getElementById('desktop-area').addEventListener('contextmenu', (e) => {
+    if (e.target.closest('.os-window')) return;
+    e.preventDefault();
+    const cm = document.getElementById('context-menu');
+    cm.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
+    cm.style.top = Math.min(e.clientY, window.innerHeight - 280) + 'px';
+    cm.classList.add('show');
+});
+
+// ══════════════════════════════════════
+//   POWER ACTIONS
+// ══════════════════════════════════════
+function doShutdown() {
+    closeStartMenu();
+    const s = document.getElementById('shutdown-screen');
+    document.getElementById('shutdown-text').textContent = 'Shutting down...';
+    s.style.display = 'flex';
+    setTimeout(() => {
+        document.getElementById('desktop-screen').style.display = 'none';
+        s.querySelector('.shutdown-spinner').style.display = 'none';
+        document.getElementById('shutdown-text').textContent = '';
+    }, 3000);
+}
+
+function doRestart() {
+    closeStartMenu();
+    const s = document.getElementById('shutdown-screen');
+    document.getElementById('shutdown-text').textContent = 'Restarting...';
+    s.style.display = 'flex';
+    setTimeout(() => location.reload(), 2500);
+}
+
+function doSleep() {
+    closeStartMenu();
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:999990;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = '<div style="color:#333;font-family:Inter,sans-serif;font-size:14px;animation:pulse-dot 2s infinite">Click to wake</div>';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', () => overlay.remove());
+}
+
+// ══════════════════════════════════════
+//   BSOD
+// ══════════════════════════════════════
+function triggerBSOD() {
+    const bsod = document.getElementById('bsod');
+    bsod.style.display = 'flex';
+    let pct = 0;
+    const int = setInterval(() => {
+        pct += Math.floor(Math.random() * 8 + 1);
+        if (pct >= 100) { pct = 100; clearInterval(int); setTimeout(() => location.reload(), 2000); }
+        document.getElementById('bsod-pct').textContent = pct + '% complete';
+    }, 300);
+}
+
+// ══════════════════════════════════════
+//   TERMINAL ENGINE
+// ══════════════════════════════════════
+function createLine(html = '') {
+    const terminal = document.getElementById('terminal');
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.innerHTML = html;
+    terminal.appendChild(div);
+    return div;
+}
+
+function typeLine(line, text, speed = 22) {
+    return new Promise(resolve => {
+        line.classList.add('visible', 'typing');
+        let i = 0;
+        const interval = setInterval(() => {
+            line.textContent += text[i]; i++;
+            scrollToBottom();
+            if (i >= text.length) { clearInterval(interval); line.classList.remove('typing'); resolve(); }
+        }, speed);
+    });
+}
+
+function showLine(html) {
+    const line = createLine(html);
+    line.classList.add('visible');
+    scrollToBottom();
+    return line;
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function animateProgress(label) {
+    return new Promise(resolve => {
+        showLine(`<span class="dim">${label}</span>`);
+        const container = document.createElement('div'); container.className = 'progress-container';
+        const bar = document.createElement('div'); bar.className = 'progress-bar';
+        container.appendChild(bar);
+        const wrapper = createLine(); wrapper.classList.add('visible'); wrapper.style.overflow = 'visible';
+        wrapper.appendChild(container);
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 4 + 1;
+            if (progress >= 100) { progress = 100; bar.style.width = '100%'; clearInterval(interval); setTimeout(resolve, 200); }
+            bar.style.width = progress + '%'; scrollToBottom();
+        }, 18);
+    });
+}
+
+function scrollToBottom() {
+    const t = document.getElementById('terminal');
+    if (t) t.scrollTop = t.scrollHeight;
+}
+
+const ASCII_BANNER = `
+ ███╗   ██╗██╗   ██╗██╗     ██╗     ███████╗██████╗  █████╗  ██████╗
+ ████╗  ██║██║   ██║██║     ██║     ██╔════╝██╔══██╗██╔══██╗██╔════╝
+ ██╔██╗ ██║██║   ██║██║     ██║     █████╗  ██████╔╝███████║██║  ███╗
+ ██║╚██╗██║██║   ██║██║     ██║     ██╔══╝  ██╔══██╗██╔══██║██║   ██║
+ ██║ ╚████║╚██████╔╝███████╗███████╗██║     ██║  ██║██║  ██║╚██████╔╝
+ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝`;
+
+async function bootSequence() {
+    await wait(400);
+    const l1 = createLine(); await typeLine(l1, 'Microsoft Windows [Version 10.0.19045.4046]', 15);
+    await wait(120);
+    showLine('<span class="dim">(c) Microsoft Corporation. All rights reserved.</span>');
+    await wait(120); showLine(''); await wait(200);
+    const l2 = createLine(); await typeLine(l2, 'C:\\NullFrag> init --secure --mode=encrypted', 20);
+    await wait(400);
+    showLine(''); showLine('<span class="white">Initializing secure environment...</span>'); await wait(400);
+    showLine(''); showLine('<span class="dim">[ SYSTEM CHECK ]</span>'); await wait(200);
+
+    for (const [text, status] of [['Verifying hardware integrity','OK'],['Loading cryptographic modules','OK'],['Collecting entropy from system events','OK'],['Establishing secure session','OK'],['Initializing network stack','OK']]) {
+        const line = createLine();
+        await typeLine(line, `  ${text}...`, 12);
+        await wait(150);
+        line.classList.remove('typing');
+        line.innerHTML = `  ${text}... [<span class="ok">${status}</span>]`;
+        await wait(100);
+    }
+
+    await wait(300); showLine('');
+    await animateProgress('  Loading NullFrag kernel modules');
+    await wait(200);
+    await animateProgress('  Mounting encrypted filesystem');
+    await wait(300); showLine('');
+
+    showLine('<span class="dim">┌──────────────────────────────────────────┐</span>');
+    showLine('<span class="dim">│</span> <span class="label">SESSION:</span>  LOCAL     <span class="label">MODE:</span> SECURE         <span class="dim">│</span>');
+    showLine('<span class="dim">│</span> <span class="label">INTEGRITY:</span> <span class="ok">OK</span>      <span class="label">ENCRYPTION:</span> AES-256   <span class="dim">│</span>');
+    showLine('<span class="dim">│</span> <span class="label">BUILD:</span>    19045.4046                     <span class="dim">│</span>');
+    showLine('<span class="dim">└──────────────────────────────────────────┘</span>');
+    await wait(500); showLine('');
+
+    const asciiDiv = document.createElement('div');
+    asciiDiv.className = 'line visible ascii-art glitch';
+    asciiDiv.setAttribute('data-text', ASCII_BANNER);
+    const pre = document.createElement('pre');
+    pre.textContent = ASCII_BANNER;
+    asciiDiv.appendChild(pre);
+    document.getElementById('terminal').appendChild(asciiDiv);
+    scrollToBottom();
+    await wait(600);
+
+    showLine('');
+    showLine('<span class="accent">  ═══════════════════════════════════════════════</span>');
+    showLine('<span class="white">       Welcome to </span><span class="ok">NullFrag OS</span><span class="white"> — Secure Terminal</span>');
+    showLine('<span class="accent">  ═══════════════════════════════════════════════</span>');
+    await wait(300); showLine('');
+    showLine('<span class="dim">  Type </span><span class="ok">help</span><span class="dim"> to see available commands.</span>'); showLine('');
+
+    document.getElementById('input-area').classList.add('active');
+    document.getElementById('command-input').focus();
+}
+
+// ── Commands ──
+const COMMANDS = {
+    help: () => `<div class="cmd-output"><span class="section-title">Available Commands</span>\n<span class="divider">─────────────────────────</span>\n<ul><li><span class="ok">about</span>      — Who is NullFrag?</li><li><span class="ok">skills</span>     — Technical skill set</li><li><span class="ok">projects</span>   — Featured projects</li><li><span class="ok">contact</span>    — Get in touch</li><li><span class="ok">socials</span>    — Social media links</li><li><span class="ok">neofetch</span>   — System information</li><li><span class="ok">clear</span>      — Clear terminal</li><li><span class="ok">matrix</span>     — 👀</li><li><span class="ok">bsod</span>       — Don't do it...</li><li><span class="ok">weather</span>    — Current conditions</li><li><span class="ok">snake</span>      — 🐍 Play Snake!</li><li><span class="ok">tetris</span>     — 🧱 Play Tetris!</li><li><span class="ok">history</span>    — Command history</li><li><span class="ok">help</span>       — Show this menu</li></ul></div>`,
+
+    about: () => `<div class="cmd-output"><span class="section-title">┌─ About Paramdeep Singh ─┐</span><br><span class="white">  Hey! I'm <span class="ok">Paramdeep Singh</span> — a developer, creator, and</span>\n<span class="white">  tech enthusiast from <span class="accent">New Delhi</span> who loves building</span>\n<span class="white">  things that live on the edge of creativity and code.</span><br><span class="dim">  "Breaking things to understand how they work."</span></div>`,
+
+    skills: () => `<div class="cmd-output"><span class="section-title">┌─ Skills & Technologies ─┐</span><br>\n  <span class="white">Languages</span>    <span class="ok">█████████░</span>  JavaScript, Python, C++\n  <span class="white">Frontend</span>     <span class="ok">████████░░</span>  React, HTML/CSS, Tailwind\n  <span class="white">Backend</span>      <span class="ok">███████░░░</span>  Node.js, Express, APIs\n  <span class="white">Tools</span>        <span class="ok">████████░░</span>  Git, Docker, Linux, VS Code\n  <span class="white">Security</span>     <span class="ok">██████░░░░</span>  Networking, Pentesting</div>`,
+
+    projects: () => `<div class="cmd-output"><span class="section-title">┌─ Featured Projects ─┐</span><br><span class="ok">▸ NullFrag OS</span>\n    <span class="dim">Terminal-themed portfolio website</span>\n    <span class="accent">Tech: HTML, CSS, JavaScript</span><br><span class="ok">▸ MicroCRM</span>\n    <span class="dim">Customer relationship management platform</span>\n    <span class="accent">Live: microcrm.store</span></div>`,
+
+    contact: () => `<div class="cmd-output"><span class="section-title">┌─ Contact ─┐</span><br>\n  <span class="white">✉️  Email:</span>    <span class="accent">ps7855@gmail.com</span>\n  <span class="white">📍 Location:</span>  <span class="accent">New Delhi, India</span>\n  <span class="white">🌐 Website:</span>   <span class="accent">nullfrag.online</span><br><span class="dim">  Feel free to reach out!</span></div>`,
+
+    socials: () => `<div class="cmd-output"><span class="section-title">┌─ Socials ─┐</span><br>\n  <span class="white">▸ Website:</span>   <span class="accent">nullfrag.online</span>\n  <span class="white">▸ Project:</span>   <span class="accent">microcrm.store</span>\n  <span class="white">▸ Email:</span>     <span class="accent">ps7855@gmail.com</span></div>`,
+
+    neofetch: () => `<div class="cmd-output" style="display:flex;gap:24px;flex-wrap:wrap"><pre class="ascii-art" style="font-size:10px;line-height:1.2">\n   ██████╗ ███████╗\n  ██╔═══██╗██╔════╝\n  ██║   ██║███████╗\n  ██║   ██║╚════██║\n  ╚██████╔╝███████║\n   ╚═════╝ ╚══════╝</pre><div>\n  <span class="ok">admin</span><span class="dim">@</span><span class="ok">nullfrag</span>\n  <span class="dim">──────────────────</span>\n  <span class="white">OS:</span>       <span class="accent">NullFrag OS 1.0</span>\n  <span class="white">Host:</span>     <span class="accent">nullfrag.online</span>\n  <span class="white">User:</span>     <span class="accent">Paramdeep Singh</span>\n  <span class="white">Location:</span> <span class="accent">New Delhi, India</span>\n  <span class="white">Shell:</span>    <span class="accent">nullshell 2.0</span>\n  <span class="white">Terminal:</span> <span class="accent">NullTerm v3</span>\n  <span class="white">Project:</span>  <span class="accent">microcrm.store</span>\n  <span class="white">Email:</span>    <span class="accent">ps7855@gmail.com</span>\n  <span class="white">Memory:</span>   <span class="accent">16384 MiB</span>\n  <br>\n  <span style="color:#ff3333">███</span><span style="color:#ff8800">███</span><span style="color:#ffff00">███</span><span style="color:#00ff41">███</span><span style="color:#00d4ff">███</span><span style="color:#8800ff">███</span><span style="color:#ff00ff">███</span><span style="color:#ffffff">███</span></div></div>`,
+
+    weather: () => {
+        const temps = ['18°C', '22°C', '25°C', '15°C', '28°C'];
+        const conds = ['Partly Cloudy', 'Clear Skies', 'Light Rain', 'Overcast', 'Sunny'];
+        const i = Math.floor(Math.random() * temps.length);
+        return `<div class="cmd-output"><span class="section-title">┌─ Weather ─┐</span><br>\n  <span class="white">📍 Location:</span>  <span class="accent">New Delhi, India</span>\n  <span class="white">🌡️ Temp:</span>      <span class="ok">${temps[i]}</span>\n  <span class="white">☁️ Condition:</span> <span class="accent">${conds[i]}</span>\n  <span class="white">💨 Wind:</span>      <span class="accent">${Math.floor(Math.random()*30+5)} km/h</span>\n  <span class="white">💧 Humidity:</span>  <span class="accent">${Math.floor(Math.random()*40+40)}%</span></div>`;
+    },
+
+    history: () => {
+        if (commandHistory.length === 0) return '<span class="dim">  No commands in history.</span>';
+        return '<div class="cmd-output"><span class="section-title">Command History</span><br>' + commandHistory.slice(0, 20).map((c, i) => `  <span class="dim">${String(i+1).padStart(3)}</span>  <span class="white">${escapeHtml(c)}</span>`).join('\n') + '</div>';
+    },
+
+    clear: () => '__CLEAR__',
+    matrix: () => '__MATRIX__',
+    bsod: () => '__BSOD__',
+    sudo: () => `<span class="err">  [ACCESS DENIED]</span> <span class="dim">Nice try. You are not root.</span>`,
+    'rm -rf /': () => `<span class="err">  [BLOCKED]</span> <span class="dim">Self-destruct aborted. You need a permit for that.</span>`,
+    hack: () => { showToast('🕶️', 'FBI', 'Your IP has been logged. Agents are en route.'); return `<span class="warn">  [WARNING]</span> <span class="dim">Unauthorized access attempt logged. FBI notified. 🕶️</span>`; },
+    exit: () => `<span class="dim">  There is no escape from NullFrag OS.</span>`,
+    whoami: () => `<span class="ok">  admin</span> <span class="dim">(Paramdeep Singh @ NullFrag OS)</span>`,
+    pwd: () => `<span class="accent">  /home/admin/terminal</span>`,
+    date: () => `<span class="accent">  ${new Date().toString()}</span>`,
+    rickroll: () => { window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank'); return `<span class="ok">  🎵 Never gonna give you up...</span>`; },
+    ls: () => `<span class="accent">  README.md  projects/  .env  secrets/  node_modules/  vibes.mp3</span>`,
+    'cat .env': () => `<span class="err">  [CLASSIFIED]</span> <span class="dim">You don't have clearance for that, soldier.</span>`,
+    screensaver: () => '__MATRIX__',
+    snake: () => { openSnake(); return `<span class="ok">  🐍 Launching Snake...</span> <span class="dim">Use arrow keys or WASD to play!</span>`; },
+    tetris: () => { openTetris(); return `<span class="ok">  🧱 Launching Tetris...</span> <span class="dim">Arrow keys to move, Up to rotate!</span>`; },
+    shutdown: () => { doShutdown(); return `<span class="dim">  Initiating shutdown sequence...</span>`; },
+    restart: () => { doRestart(); return `<span class="dim">  Restarting NullFrag OS...</span>`; },
+    sleep: () => { doSleep(); return `<span class="dim">  Entering sleep mode...</span>`; },
+};
+
+function executeCommand(cmd) {
+    const trimmed = cmd.trim().toLowerCase();
+    showLine(`<span class="accent">admin@nullfrag ~$</span> <span class="white">${escapeHtml(cmd)}</span>`);
+    if (!trimmed) return;
+    commandHistory.unshift(cmd); historyIndex = -1;
+
+    if (COMMANDS[trimmed]) {
+        const result = COMMANDS[trimmed]();
+        if (result === '__CLEAR__') { document.getElementById('terminal').innerHTML = ''; return; }
+        if (result === '__MATRIX__') { showLine('<span class="ok">  Initiating Matrix rain...</span> <span class="dim">(click to stop)</span>'); startMatrix(); return; }
+        if (result === '__BSOD__') { showLine('<span class="err">  CRITICAL ERROR: SYSTEM FAILURE</span>'); setTimeout(triggerBSOD, 800); return; }
+        showLine(result);
+    } else {
+        showLine(`<span class="err">  Command not found:</span> <span class="dim">${escapeHtml(trimmed)}</span>. <span class="dim">Type </span><span class="ok">help</span><span class="dim"> for commands.</span>`);
+    }
+    showLine(''); scrollToBottom();
+}
+
+function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+// ── Matrix Rain ──
+function startMatrix() {
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    canvas.classList.add('active'); matrixRunning = true;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ';
+    const fs = 14, cols = Math.floor(canvas.width / fs), drops = Array(cols).fill(1);
+    function draw() {
+        if (!matrixRunning) { canvas.classList.remove('active'); ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+        ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#00ff41'; ctx.font = fs + 'px Fira Code,monospace';
+        for (let i = 0; i < drops.length; i++) {
+            ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*fs, drops[i]*fs);
+            if (drops[i]*fs > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+    const stop = () => { matrixRunning = false; document.removeEventListener('click', stop); };
+    setTimeout(() => document.addEventListener('click', stop), 500);
+}
+
+window.addEventListener('resize', () => { const c = document.getElementById('matrix-canvas'); if(c){c.width=window.innerWidth;c.height=window.innerHeight;} });
+
+// ══════════════════════════════════════
+//   SNAKE GAME
+// ══════════════════════════════════════
+let snakeGame = null;
+
+function openSnake() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(420, vw - 60), h = Math.min(520, vh - 100);
+    const x = (vw - w) / 2 - 50, y = (vh - 48 - h) / 2;
+
+    const bodyHtml = `<div class="win-body snake-body" style="position:relative">
+        <div class="snake-overlay" id="snake-overlay">
+            <div class="so-title">🐍 SNAKE</div>
+            <div class="so-sub">Use Arrow Keys or WASD</div>
+            <button class="so-btn" onclick="startSnakeGame()">Start Game</button>
+        </div>
+        <div class="snake-hud">
+            <span>Score: <span class="sh-score" id="snake-score">0</span></span>
+            <span>Best: <span class="sh-score" id="snake-best">0</span></span>
+        </div>
+        <canvas id="snake-canvas" width="300" height="300"></canvas>
+        <div class="snake-mobile-controls">
+            <div></div>
+            <button onclick="setSnakeDir(0,-1)">▲</button>
+            <div></div>
+            <button onclick="setSnakeDir(-1,0)">◄</button>
+            <button onclick="setSnakeDir(0,1)">▼</button>
+            <button onclick="setSnakeDir(1,0)">►</button>
+        </div>
+    </div>`;
+
+    createWindow('snake', 'Snake — NullFrag Games', '🐍', x, y, w, h, bodyHtml);
+}
+
+function setSnakeDir(dx, dy) {
+    if (!snakeGame || snakeGame.over) return;
+    // Prevent reversing direction
+    if (snakeGame.dx === -dx && snakeGame.dy === -dy) return;
+    snakeGame.nextDx = dx; snakeGame.nextDy = dy;
+}
+
+let snakeBest = 0;
+
+function startSnakeGame() {
+    const canvas = document.getElementById('snake-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('snake-overlay');
+    if (overlay) overlay.style.display = 'none';
+
+    const gridSize = 15, cols = canvas.width / gridSize, rows = canvas.height / gridSize;
+    snakeGame = {
+        snake: [{x:10,y:10},{x:9,y:10},{x:8,y:10}],
+        dx: 1, dy: 0, nextDx: 1, nextDy: 0,
+        food: null, score: 0, over: false, speed: 120, interval: null
+    };
+    placeFood();
+
+    document.getElementById('snake-score').textContent = '0';
+    document.getElementById('snake-best').textContent = snakeBest;
+
+    function placeFood() {
+        let fx, fy;
+        do {
+            fx = Math.floor(Math.random() * cols);
+            fy = Math.floor(Math.random() * rows);
+        } while (snakeGame.snake.some(s => s.x === fx && s.y === fy));
+        snakeGame.food = { x: fx, y: fy };
+    }
+
+    function tick() {
+        if (snakeGame.over) return;
+        snakeGame.dx = snakeGame.nextDx;
+        snakeGame.dy = snakeGame.nextDy;
+
+        const head = { x: snakeGame.snake[0].x + snakeGame.dx, y: snakeGame.snake[0].y + snakeGame.dy };
+
+        // Wall collision
+        if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) { gameOver(); return; }
+        // Self collision
+        if (snakeGame.snake.some(s => s.x === head.x && s.y === head.y)) { gameOver(); return; }
+
+        snakeGame.snake.unshift(head);
+
+        if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
+            snakeGame.score += 10;
+            document.getElementById('snake-score').textContent = snakeGame.score;
+            if (snakeGame.score > snakeBest) { snakeBest = snakeGame.score; document.getElementById('snake-best').textContent = snakeBest; }
+            placeFood();
+            // Speed up slightly
+            if (snakeGame.speed > 60) {
+                snakeGame.speed -= 2;
+                clearInterval(snakeGame.interval);
+                snakeGame.interval = setInterval(tick, snakeGame.speed);
             }
-            print("");
+        } else {
+            snakeGame.snake.pop();
         }
 
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function updatePrompt() {
-            if (isBooting) return;
-            const promptSpan = promptEl.querySelector(".prompt");
-            promptSpan.textContent = currentDir ? promptResume : promptRoot;
-        }
-
-        function disableTerminalScroll() {
-            terminal.style.overflowY = "hidden";
-        }
-
-        function enableTerminalScroll() {
-            terminal.style.overflowY = "auto";
-        }
-
-
-        /* ---------------- TAB COMPLETION ---------------- */
-        function getTabCompletion(input) {
-            const commands = [...Object.keys(data), "snake", "clear", "ping", "traceroute", "date", "time",
-                "matrix", "hack", "tree", "dir", "cd", "cat", "show", ...hiddenCommands];
-            const matches = commands.filter(cmd => cmd.startsWith(input));
-            return matches;
-        }
-
-        /* ---------------- COMMAND SUGGESTIONS ---------------- */
-        function findSimilarCommand(input) {
-            const allCommands = [...Object.keys(data), "snake", "clear", "ping", "traceroute", "date",
-                "time", "matrix", "hack", "tree", "dir", "cd", "cat"];
-
-            const similar = allCommands.filter(cmd => {
-                const minLen = Math.min(cmd.length, input.length);
-                if (minLen < 3) return cmd.startsWith(input.substring(0, 2));
-                return cmd.includes(input.substring(0, 3)) || input.includes(cmd.substring(0, 3));
-            });
-
-            return similar[0];
-        }
-
-        /* ---------------- FAKE FILESYSTEM COMMANDS ---------------- */
-
-        function dirCommand() {
-            const inResume = currentDir === "resume";
-            const path = `C:\\Users\\NullFrag${inResume ? "\\resume" : ""}`;
-
-            // Volume info (shown every time like CMD)
-            print(" Volume in drive C has no label.");
-            print(" Volume Serial Number is CA20-5461");
-            print("");
-            print(` Directory of ${path}`);
-            print("");
-
-            const now = new Date();
-
-            const formatDate = d =>
-                d.toLocaleDateString("en-GB").replace(/\//g, "-");
-
-            const formatTime = d =>
-                d.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true
-                });
-
-            let fileCount = 0;
-            let dirCount = 0;
-            let totalBytes = 0;
-
-            // . and .. entries
-            print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          .`);
-            print(`${formatDate(now)}  ${formatTime(now)}    <DIR>          ..`);
-            dirCount += 2;
-
-            const items = inResume ? filesInResume : filesInRoot;
-
-            items.forEach(item => {
-                if (item.includes(".")) {
-                    const size = (Math.floor(Math.random() * 8) + 1) * 1024;
-                    totalBytes += size;
-                    fileCount++;
-
-                    print(
-                        `${formatDate(now)}  ${formatTime(now)}           ${size
-                            .toString()
-                            .padStart(10, " ")} ${item}`
-                    );
-                } else {
-                    dirCount++;
-                    print(
-                        `${formatDate(now)}  ${formatTime(now)}    <DIR>          ${item}`
-                    );
-                }
-            });
-
-            print(
-                `               ${fileCount} File(s) ${totalBytes
-                    .toLocaleString()
-                    .padStart(14, " ")} bytes`
-            );
-            print(
-                `               ${dirCount} Dir(s)  151,681,032,192 bytes free`
-            );
-        }
-
-        function cdCommand(arg) {
-            if (!arg || arg === ".") return;
-
-            if (arg === "..") {
-                currentDir = "";
-                updatePrompt();
-                return;
-            }
-
-            if (arg === "resume" && currentDir === "") {
-                currentDir = "resume";
-                updatePrompt();
-                return;
-            }
-
-            print("The system cannot find the path specified.");
-        }
-
-        function catCommand(arg) {
-            if (!arg) {
-                print("The system cannot find the file specified.");
-                return;
-            }
-
-            if (currentDir !== "resume") {
-                print("The system cannot find the file specified.");
-                return;
-            }
-
-            if (arg === "resume.txt") {
-                print("");
-                data.resume
-                    .split("\n")
-                    .filter(l => l.trim())
-                    .forEach(line => print(line));
-            } else {
-                print("The system cannot find the file specified.");
-            }
-        }
-
-
-        /* ---------------- PING COMMAND ---------------- */
-        async function pingCommand(target) {
-            print(`Pinging ${target} with 32 bytes of data:`);
-
-            const times = [];
-
-            for (let i = 0; i < 4; i++) {
-                const t = 3 + Math.floor(Math.random() * 3);
-                times.push(t);
-                await sleep(700);
-                print(`Reply from ${target}: bytes=32 time=${t}ms TTL=118`);
-            }
-
-            const min = Math.min(...times);
-            const max = Math.max(...times);
-            const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
-
-            print("");
-            print(`Ping statistics for ${target}:`);
-            print(`    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),`);
-            print(`Approximate round trip times in milli-seconds:`);
-            print(`    Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms`);
-        }
-
-        /* ---------------- TRACEROUTE COMMAND ---------------- */
-        async function tracerouteCommand(target) {
-            print(`Tracing route to ${target} over a maximum of 10 hops:\n`);
-
-            const hops = [
-                "192.168.1.1",
-                "10.0.0.1",
-                "172.16.254.1",
-                "203.0.113.1",
-                target
-            ];
-
-            for (let i = 0; i < hops.length; i++) {
-                await sleep(600);
-                const ms1 = 1 + Math.floor(Math.random() * 5);
-                const ms2 = ms1 + Math.floor(Math.random() * 3);
-                const ms3 = ms2 + Math.floor(Math.random() * 2);
-                print(`  ${(i + 1).toString().padStart(2)}    ${ms1} ms    ${ms2} ms    ${ms3} ms    ${hops[i]}`);
-            }
-            print("\nTrace complete.");
-        }
-
-        /* ---------------- DATE/TIME COMMAND ---------------- */
-        function dateTimeCommand() {
-            const now = new Date();
-            print(`The current date is: ${now.toDateString()}`);
-            print(`The current time is: ${now.toLocaleTimeString()}`);
-        }
-
-        /* ---------------- ENHANCED EASTER EGGS ---------------- */
-        async function matrixEffect() {
-            const chars = "ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01";
-            print("\n[ENTERING THE MATRIX...]\n");
-            await sleep(500);
-
-            for (let i = 0; i < 12; i++) {
-                let line = "";
-                for (let j = 0; j < 70; j++) {
-                    line += chars[Math.floor(Math.random() * chars.length)];
-                }
-                await typeLine(line, 1);
-            }
-
-            await sleep(800);
-            print("\n[CONNECTION TERMINATED]\n");
-        }
-
-        async function hackEffect() {
-            print("\n[INITIALIZING HACK SEQUENCE...]");
-            await sleep(500);
-            await loadingDots("Bypassing firewall", 3, 300);
-            await loadingDots("Cracking encryption", 3, 300);
-            await loadingDots("Accessing mainframe", 3, 300);
-            print("\n[ACCESS GRANTED]");
-            print("Just kidding! This is just a portfolio site ;)");
-        }
-
-        async function treeCommand() {
-            print("\nC:\\USERS\\NULLFRAG");
-            await sleep(200);
-            print("│");
-            print("├───resume");
-            await sleep(100);
-            print("│   └───resume.txt");
-            await sleep(100);
-            print("│");
-            print("├───projects");
-            await sleep(100);
-            print("│   ├───lsass-monitor.exe");
-            print("│   ├───obfuscator.dll");
-            print("│   └───win32-dump.exe");
-            await sleep(100);
-            print("│");
-            print("└───skills");
-            await sleep(100);
-            print("    ├───languages.txt");
-            print("    └───security.txt");
-            print("");
-        }
-
-        async function loadingDots(text, cycles = 4, interval = 400) {
-            const start = output.textContent.length;
-            let dots = 0;
-
-            for (let i = 0; i < cycles * 2; i++) {
-                dots = (dots + 1) % 4;
-                output.textContent =
-                    output.textContent.slice(0, start) +
-                    text +
-                    ".".repeat(dots) +
-                    "\n";
-
-                terminal.scrollTop = terminal.scrollHeight;
-                await sleep(interval);
-            }
-        }
-
-        /* ---------------- BOOT ---------------- */
-        async function boot() {
-            await typeLine("Microsoft Windows [Version 10.0.19045.4046]");
-            await typeLine("(c) Microsoft Corporation. All rights reserved.");
-            await typeLine("Initializing secure environment...");
-            await loadingDots("Verifying hardware integrity", 3, 400);
-            await loadingDots("Collecting entropy from system events", 3, 380);
-            await loadingDots("Loading modules", 4, 350);
-            await loadingDots("Decrypting session keys", 4, 350);
-            await typeLine("Access granted.");
-            await sleep(600);
-            await typeLine("Welcome to Secret Lab");
-            print("");
-            await typeLine("Type 'help' to continue.");
-            isBooting = false;
-            mode = "shell";
-            promptEl.style.display = "flex";
-            cmdInput.disabled = false;
-            updatePrompt();
-            cmdInput.focus();
-            setTimeout(showMobileWarning, 300);
-        }
-
-        function showMobileWarning() {
-            // EXTRA SAFETY: real mobile detection
-            if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
-
-            // Prevent duplicates
-            if (document.getElementById("nf-mobile-warning")) return;
-
-            const warn = document.createElement("div");
-            warn.id = "nf-mobile-warning";
-            warn.textContent = "⚠️ Mobile detected — best experienced on desktop / laptop";
-
-            Object.assign(warn.style, {
-                position: "fixed",
-                inset: "auto 0 70px 0",
-                margin: "0 auto",
-                width: "fit-content",
-                maxWidth: "90%",
-                background: "rgba(0,0,0,0.92)",
-                color: "#ffcc00",
-                padding: "10px 14px",
-                border: "1px solid #333",
-                borderRadius: "6px",
-                fontFamily: "Consolas, monospace",
-                fontSize: "12.5px",
-                zIndex: "2147483647",
-                pointerEvents: "none",
-                textAlign: "center",
-                boxShadow: "0 0 14px rgba(0,0,0,0.9)",
-                opacity: "1",
-                transition: "opacity 0.6s ease"
-            });
-
-            document.documentElement.appendChild(warn);
-            setTimeout(() => {
-                warn.style.opacity = "0";
-                setTimeout(() => warn.remove(), 700);
-            }, 6000);
-        }
-
-        function isMobileDevice() {
-            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        }
-
-        let joystickEl = null;
-
-        function createSnakeJoystick(onDirection) {
-            if (!isMobileDevice()) return;
-
-            joystickEl = document.createElement("div");
-            joystickEl.id = "nf-joystick";
-
-            Object.assign(joystickEl.style, {
-                position: "fixed",
-                bottom: "90px",
-                left: "24px",
-                width: "120px",
-                height: "120px",
-                borderRadius: "50%",
-                background: "rgba(0,0,0,0.6)",
-                border: "2px solid #33ff33",
-                zIndex: "2147483647",
-                touchAction: "none"
-            });
-
-            const stick = document.createElement("div");
-            Object.assign(stick.style, {
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                width: "46px",
-                height: "46px",
-                borderRadius: "50%",
-                background: "#33ff33",
-                transform: "translate(-50%, -50%)",
-                opacity: "0.85"
-            });
-
-            joystickEl.appendChild(stick);
-            document.documentElement.appendChild(joystickEl);
-
-            let startX = 0, startY = 0;
-
-            joystickEl.addEventListener("touchstart", e => {
-                const t = e.touches[0];
-                startX = t.clientX;
-                startY = t.clientY;
-            });
-
-            joystickEl.addEventListener("touchmove", e => {
-                e.preventDefault();
-                const t = e.touches[0];
-                const dx = t.clientX - startX;
-                const dy = t.clientY - startY;
-
-                const absX = Math.abs(dx);
-                const absY = Math.abs(dy);
-
-                if (absX > absY) {
-                    onDirection(dx > 0 ? "right" : "left");
-                } else {
-                    onDirection(dy > 0 ? "down" : "up");
-                }
-
-                stick.style.transform =
-                    `translate(calc(-50% + ${dx * 0.3}px), calc(-50% + ${dy * 0.3}px))`;
-            });
-
-            joystickEl.addEventListener("touchend", () => {
-                stick.style.transform = "translate(-50%, -50%)";
-            });
-        }
-
-        let exitBtn = null;
-
-        function createSnakeExitButton(onExit) {
-            if (!isMobileDevice()) return;
-
-            exitBtn = document.createElement("div");
-            exitBtn.textContent = "⏹ Exit Game";
-
-            Object.assign(exitBtn.style, {
-                position: "fixed",
-                bottom: "24px",
-                left: "24px",
-                background: "#33ff33",
-                color: "#000",
-                padding: "12px 18px",
-                borderRadius: "8px",
-                fontFamily: "Consolas, monospace",
-                fontWeight: "bold",
-                zIndex: "2147483647",
-                userSelect: "none"
-            });
-
-            exitBtn.addEventListener("touchstart", e => {
-                e.preventDefault();
-                onExit();
-            });
-
-            document.documentElement.appendChild(exitBtn);
-        }
-
-        /* ---------------- SNAKE GAME ---------------- */
-        function startSnake() {
-            mode = "snake";
-            disableTerminalScroll();
-            cmdInput.disabled = true;
-            promptEl.style.display = "none";
-            output.textContent = "";
-
-            const GAME_SPEED = 130;
-            const SPEEDUP_EVERY = 10;
-            const MIN_SPEED = 70;
-
-            const charWidth = 8.8;
-            const charHeight = 18;
-            const rect = terminal.getBoundingClientRect();
-            const cols = Math.floor(terminal.clientWidth / charWidth) - 4;
-            const rows = Math.floor(terminal.clientHeight / charHeight) - 6;
-
-            let snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
-            let direction = { x: 1, y: 0 };
-            let nextDirection = direction;
-
-            if (isMobileDevice()) {
-                createSnakeJoystick(dir => {
-                    if (dir === "up" && direction.y !== 1) nextDirection = { x: 0, y: -1 };
-                    if (dir === "down" && direction.y !== -1) nextDirection = { x: 0, y: 1 };
-                    if (dir === "left" && direction.x !== 1) nextDirection = { x: -1, y: 0 };
-                    if (dir === "right" && direction.x !== -1) nextDirection = { x: 1, y: 0 };
-                });
-            }
-            if (isMobileDevice()) {
-                createSnakeExitButton(exitSnake);
-            }
-
-            let food = getRandomFoodPosition();
-            let score = 0;
-            let highScore = parseInt(localStorage.getItem("nf_snake_hs") || "0", 10);
-            let gameRunning = true;
-            let gamePaused = false;
-            let gameInterval = null;
-
-            const headChars = {
-                '1,0': '►',
-                '-1,0': '◄',
-                '0,-1': '▲',
-                '0,1': '▼'
-            };
-
-            function getRandomFoodPosition() {
-                let pos;
-                do {
-                    pos = {
-                        x: 1 + Math.floor(Math.random() * (cols - 2)),
-                        y: 1 + Math.floor(Math.random() * (rows - 2))
-                    };
-                } while (snake.some(s => s.x === pos.x && s.y === pos.y));
-                return pos;
-            }
-
-            function drawCenteredPopup(board, gameOver, gamePaused) {
-                if (!gameOver && !gamePaused) return;
-
-                const midRow = Math.floor(rows / 2);
-                const status = gameOver ? "GAME OVER!" : "PAUSED";
-                const instruction = gameOver ? "Press Q to quit" : "Press P/SPACE to resume";
-
-                const boxWidth = Math.max(status.length, instruction.length) + 4;
-                const boxLeft = Math.floor((cols - boxWidth) / 2);
-
-                for (let r = midRow - 2; r <= midRow + 2; r++) {
-                    if (r >= 0 && r < rows) {
-                        for (let c = boxLeft - 1; c < boxLeft + boxWidth + 1; c++) {
-                            if (c >= 0 && c < cols) board[r][c] = " ";
-                        }
-                    }
-                }
-
-                if (midRow - 2 >= 0 && midRow - 2 < rows) {
-                    board[midRow - 2][boxLeft - 1] = "┌";
-                    for (let c = boxLeft; c < boxLeft + boxWidth; c++) {
-                        board[midRow - 2][c] = "─";
-                    }
-                    board[midRow - 2][boxLeft + boxWidth] = "┐";
-                }
-
-                const statusPad = Math.floor((boxWidth - status.length) / 2);
-                for (let i = 0; i < status.length; i++) {
-                    board[midRow - 1][boxLeft + statusPad + i] = status[i];
-                }
-
-                const instrPad = Math.floor((boxWidth - instruction.length) / 2);
-                for (let i = 0; i < instruction.length; i++) {
-                    board[midRow][boxLeft + instrPad + i] = instruction[i];
-                }
-
-                if (midRow + 1 >= 0 && midRow + 1 < rows) {
-                    board[midRow + 1][boxLeft - 1] = "└";
-                    for (let c = boxLeft; c < boxLeft + boxWidth; c++) {
-                        board[midRow + 1][c] = "─";
-                    }
-                    board[midRow + 1][boxLeft + boxWidth] = "┘";
-                }
-            }
-
-            function drawBoard(gameOver = false) {
-                let board = Array(rows).fill().map(() => Array(cols).fill(" "));
-
-                snake.slice(1).forEach(seg => {
-                    board[seg.y][seg.x] = "█";
-                });
-
-                const headKey = `${direction.x},${direction.y}`;
-                board[snake[0].y][snake[0].x] = headChars[headKey] || "█";
-
-                board[food.y][food.x] = "♦";
-
-                drawCenteredPopup(board, gameOver, gamePaused);
-
-                let text = "╔" + "═".repeat(cols) + "╗\n";
-
-                board.forEach(row => {
-                    text += "║" + row.join("") + "║\n";
-                });
-
-                text += "╚" + "═".repeat(cols) + "╝\n";
-
-                const scoreText = `Score: ${score.toString().padStart(4, '0')}  High: ${highScore.toString().padStart(4, '0')}`;
-                const scorePad = Math.floor((cols + 2 - scoreText.length) / 2);
-                text += "\n" + " ".repeat(scorePad) + scoreText;
-
-                output.textContent = text;
-            }
-
-            function moveSnake() {
-                if (!gameRunning || gamePaused) return;
-
-                direction = nextDirection;
-
-                const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
-
-                if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows ||
-                    snake.some((s, i) => i > 0 && s.x === head.x && s.y === head.y)) {
-                    gameRunning = false;
-                    drawBoard(true);
-                    return;
-                }
-
-                snake.unshift(head);
-
-                if (head.x === food.x && head.y === food.y) {
-                    score++;
-                    if (score > highScore) {
-                        highScore = score;
-                        localStorage.setItem("nf_snake_hs", highScore);
-                    }
-                    food = getRandomFoodPosition();
-
-                    if (score % SPEEDUP_EVERY === 0 && gameInterval) {
-                        clearInterval(gameInterval);
-                        gameInterval = setInterval(moveSnake, Math.max(MIN_SPEED, GAME_SPEED - score * 4));
-                    }
-                } else {
-                    snake.pop();
-                }
-
-                drawBoard();
-            }
-
-            function handleKey(e) {
-                if (mode !== "snake") return;
-                e.preventDefault();
-
-                const k = e.key.toLowerCase();
-
-                if ((k === "arrowup" || k === "w") && direction.y !== 1) nextDirection = { x: 0, y: -1 };
-                if ((k === "arrowdown" || k === "s") && direction.y !== -1) nextDirection = { x: 0, y: 1 };
-                if ((k === "arrowleft" || k === "a") && direction.x !== 1) nextDirection = { x: -1, y: 0 };
-                if ((k === "arrowright" || k === "d") && direction.x !== -1) nextDirection = { x: 1, y: 0 };
-
-                if ((k === " " || k === "p") && gameRunning) {
-                    gamePaused = !gamePaused;
-                    drawBoard(gamePaused);
-                }
-                if (k === "q" && (!gameRunning || gamePaused)) exitSnake();
-            }
-
-            function exitSnake() {
-                document.removeEventListener("keydown", handleKey);
-                if (gameInterval) clearInterval(gameInterval);
-                enableTerminalScroll();
-                output.textContent = "";
-                promptEl.style.display = "flex";
-                cmdInput.disabled = false;
-                cmdInput.focus();
-                mode = "shell";
-                if (joystickEl) {
-                    joystickEl.remove();
-                    joystickEl = null;
-                }
-                if (exitBtn) {
-                    exitBtn.remove();
-                    exitBtn = null;
-                }
-            }
-
-            document.addEventListener("keydown", handleKey);
-            drawBoard();
-            gameInterval = setInterval(moveSnake, GAME_SPEED);
-        }
-
-        /* ---------------- GLOBAL KEY HANDLERS ---------------- */
-        document.addEventListener("keydown", e => {
-            // CTRL+C to skip typing animation
-            if (e.ctrlKey && e.key === "c" && mode === "shell") {
-                skipTyping = true;
-            }
+        draw();
+    }
+
+    function draw() {
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Grid
+        ctx.strokeStyle = 'rgba(0,255,65,0.04)';
+        for (let i = 0; i <= cols; i++) { ctx.beginPath(); ctx.moveTo(i*gridSize, 0); ctx.lineTo(i*gridSize, canvas.height); ctx.stroke(); }
+        for (let i = 0; i <= rows; i++) { ctx.beginPath(); ctx.moveTo(0, i*gridSize); ctx.lineTo(canvas.width, i*gridSize); ctx.stroke(); }
+
+        // Snake
+        snakeGame.snake.forEach((seg, idx) => {
+            const brightness = Math.max(0.3, 1 - idx * 0.04);
+            ctx.fillStyle = `rgba(0,255,65,${brightness})`;
+            ctx.shadowBlur = idx === 0 ? 8 : 3;
+            ctx.shadowColor = '#00ff41';
+            ctx.fillRect(seg.x * gridSize + 1, seg.y * gridSize + 1, gridSize - 2, gridSize - 2);
         });
+        ctx.shadowBlur = 0;
 
-        /* ---------------- MOBILE SUPPORT ---------------- */
-        mobileBtn.addEventListener('click', () => {
-            cmdInput.focus();
-            cmdInput.click();
-        });
+        // Food
+        ctx.fillStyle = '#ff3333';
+        ctx.shadowBlur = 10; ctx.shadowColor = '#ff3333';
+        ctx.beginPath();
+        ctx.arc(snakeGame.food.x * gridSize + gridSize/2, snakeGame.food.y * gridSize + gridSize/2, gridSize/2 - 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
 
-        cmdInput.addEventListener('focus', () => {
-            if (window.innerWidth <= 768) {
-                mobileBtn.style.opacity = '0.3';
+    function gameOver() {
+        snakeGame.over = true;
+        clearInterval(snakeGame.interval);
+        if (snakeGame.score > snakeBest) { snakeBest = snakeGame.score; }
+        showToast('🐍', 'Game Over!', `Score: ${snakeGame.score} | Best: ${snakeBest}`);
+
+        const overlay = document.getElementById('snake-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.innerHTML = `<div class="so-title">Game Over</div><div class="so-sub">Score: ${snakeGame.score}</div><button class="so-btn" onclick="startSnakeGame()">Play Again</button>`;
+        }
+    }
+
+    draw();
+    snakeGame.interval = setInterval(tick, snakeGame.speed);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!snakeGame || snakeGame.over) return;
+    if (!windows.snake) return;
+    const map = {'ArrowUp':[0,-1],'ArrowDown':[0,1],'ArrowLeft':[-1,0],'ArrowRight':[1,0],'w':[0,-1],'s':[0,1],'a':[-1,0],'d':[1,0]};
+    const dir = map[e.key];
+    if (dir) { e.preventDefault(); setSnakeDir(dir[0], dir[1]); }
+});
+
+// ══════════════════════════════════════
+//   TETRIS GAME
+// ══════════════════════════════════════
+let tetrisGame = null;
+
+const TETRIS_SHAPES = [
+    { shape: [[1,1,1,1]], color: '#00d4ff' },          // I
+    { shape: [[1,1],[1,1]], color: '#ffb000' },         // O
+    { shape: [[0,1,0],[1,1,1]], color: '#a855f7' },     // T
+    { shape: [[1,0],[1,0],[1,1]], color: '#ff8800' },    // L
+    { shape: [[0,1],[0,1],[1,1]], color: '#3b82f6' },    // J
+    { shape: [[0,1,1],[1,1,0]], color: '#00ff41' },      // S
+    { shape: [[1,1,0],[0,1,1]], color: '#ff3333' },      // Z
+];
+
+function openTetris() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(460, vw - 60), h = Math.min(540, vh - 100);
+    const x = (vw - w) / 2 + 50, y = (vh - 48 - h) / 2;
+
+    const bodyHtml = `<div class="win-body tetris-body" style="position:relative">
+        <div class="tetris-overlay" id="tetris-overlay">
+            <div class="to-title">🧱 TETRIS</div>
+            <div class="to-sub">Arrows: Move/Rotate | Down: Soft Drop</div>
+            <button class="to-btn" onclick="startTetrisGame()">Start Game</button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <canvas id="tetris-canvas" width="200" height="400"></canvas>
+            <div class="tetris-mobile-controls">
+                <button onclick="tetrisMove(-1)">◄</button>
+                <button onclick="tetrisRotate()">↻</button>
+                <button onclick="tetrisMove(1)">►</button>
+                <button onclick="tetrisSoftDrop()">▼</button>
+            </div>
+        </div>
+        <div class="tetris-sidebar">
+            <div><div class="ts-label">Score</div><div class="ts-value" id="tetris-score">0</div></div>
+            <div><div class="ts-label">Lines</div><div class="ts-value" id="tetris-lines">0</div></div>
+            <div><div class="ts-label">Level</div><div class="ts-value" id="tetris-level">1</div></div>
+            <div><div class="ts-label">Next</div><canvas id="tetris-next" class="tetris-next-canvas" width="80" height="80"></canvas></div>
+        </div>
+    </div>`;
+
+    createWindow('tetris', 'Tetris — NullFrag Games', '🧱', x, y, w, h, bodyHtml);
+}
+
+function startTetrisGame() {
+    const canvas = document.getElementById('tetris-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const nextCanvas = document.getElementById('tetris-next');
+    const nextCtx = nextCanvas.getContext('2d');
+    const overlay = document.getElementById('tetris-overlay');
+    if (overlay) overlay.style.display = 'none';
+
+    const COLS = 10, ROWS = 20, CELL = canvas.width / COLS;
+    const board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+
+    function randomPiece() {
+        const t = TETRIS_SHAPES[Math.floor(Math.random() * TETRIS_SHAPES.length)];
+        return { shape: t.shape.map(r => [...r]), color: t.color, x: Math.floor(COLS/2) - Math.ceil(t.shape[0].length/2), y: 0 };
+    }
+
+    tetrisGame = {
+        board, score: 0, lines: 0, level: 1, over: false,
+        current: randomPiece(), next: randomPiece(),
+        dropTimer: null, speed: 800
+    };
+
+    updateTetrisUI();
+    drawTetris();
+    drawNext();
+    scheduleDrop();
+
+    function scheduleDrop() {
+        clearTimeout(tetrisGame.dropTimer);
+        if (tetrisGame.over) return;
+        tetrisGame.dropTimer = setTimeout(() => { dropPiece(); scheduleDrop(); }, tetrisGame.speed);
+    }
+
+    function collides(piece, offX, offY) {
+        for (let r = 0; r < piece.shape.length; r++) {
+            for (let c = 0; c < piece.shape[r].length; c++) {
+                if (!piece.shape[r][c]) continue;
+                const nx = piece.x + c + offX, ny = piece.y + r + offY;
+                if (nx < 0 || nx >= COLS || ny >= ROWS) return true;
+                if (ny >= 0 && board[ny][nx]) return true;
             }
-        });
+        }
+        return false;
+    }
 
-        cmdInput.addEventListener('blur', () => {
-            if (window.innerWidth <= 768) {
-                mobileBtn.style.opacity = '1';
+    function lockPiece() {
+        const p = tetrisGame.current;
+        for (let r = 0; r < p.shape.length; r++) {
+            for (let c = 0; c < p.shape[r].length; c++) {
+                if (!p.shape[r][c]) continue;
+                const ny = p.y + r;
+                if (ny < 0) { endTetris(); return; }
+                board[ny][p.x + c] = p.color;
             }
-        });
+        }
+        clearLines();
+        tetrisGame.current = tetrisGame.next;
+        tetrisGame.next = randomPiece();
+        drawNext();
+        if (collides(tetrisGame.current, 0, 0)) { endTetris(); return; }
+    }
 
-        /* ---------------- MAIN SHELL ---------------- */
-        cmdInput.addEventListener("keydown", async e => {
-            if (commandRunning) return;
-            if (mode !== "shell" || isBooting) return;
-
-            // TAB COMPLETION
-            if (e.key === "Tab") {
-                e.preventDefault();
-                const input = cmdInput.value.trim();
-                const matches = getTabCompletion(input);
-
-                if (matches.length === 1) {
-                    cmdInput.value = matches[0];
-                } else if (matches.length > 1) {
-                    print(`\nPossible commands: ${matches.join(", ")}`);
-                    print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
-                }
-
-                return;
+    function clearLines() {
+        let cleared = 0;
+        for (let r = ROWS - 1; r >= 0; r--) {
+            if (board[r].every(c => c !== null)) {
+                board.splice(r, 1);
+                board.unshift(Array(COLS).fill(null));
+                cleared++; r++;
             }
+        }
+        if (cleared > 0) {
+            const points = [0, 100, 300, 500, 800];
+            tetrisGame.score += (points[cleared] || 800) * tetrisGame.level;
+            tetrisGame.lines += cleared;
+            tetrisGame.level = Math.floor(tetrisGame.lines / 10) + 1;
+            tetrisGame.speed = Math.max(100, 800 - (tetrisGame.level - 1) * 70);
+            updateTetrisUI();
+        }
+    }
 
-            // History navigation
-            if (e.key === "ArrowUp" && history.length) {
-                historyIndex = historyIndex <= 0 ? history.length - 1 : historyIndex - 1;
-                cmdInput.value = history[historyIndex];
-                e.preventDefault();
-            }
-            if (e.key === "ArrowDown" && history.length) {
-                historyIndex = historyIndex >= history.length - 1 ? -1 : historyIndex + 1;
-                cmdInput.value = historyIndex === -1 ? "" : history[historyIndex];
-                e.preventDefault();
-            }
+    function dropPiece() {
+        if (tetrisGame.over) return;
+        if (!collides(tetrisGame.current, 0, 1)) {
+            tetrisGame.current.y++;
+        } else {
+            lockPiece();
+        }
+        drawTetris();
+    }
 
-            if (e.key === "Enter") {
-                commandRunning = true;
-                const input = cmdInput.value.trim();
-                if (input) {
-                    print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}> ${input}`);
-                    history.push(input);
-                    historyIndex = -1;
-                }
+    function drawTetris() {
+        ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                const [command, ...args] = input.split(/\s+/);
-                const arg = args.join(" ");
+        // Grid lines
+        ctx.strokeStyle = 'rgba(0,212,255,0.04)';
+        for (let i = 0; i <= COLS; i++) { ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,canvas.height); ctx.stroke(); }
+        for (let i = 0; i <= ROWS; i++) { ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width,i*CELL); ctx.stroke(); }
 
-                if (!command) {
-                    print(`C:\\Users\\NullFrag${currentDir ? '\\resume' : ''}>`);
-                    historyIndex = -1;
-                }
-                else if (command === "snake") {
-                    startSnake();
-                }
-                else if (command === "clear") {
-                    output.textContent = "";
-                }
-                else if (command === "ping" && arg) {
-                    await pingCommand(arg);
-                }
-                else if (command === "traceroute" && arg) {
-                    await tracerouteCommand(arg);
-                }
-                else if (command === "date" || command === "time") {
-                    dateTimeCommand();
-                }
-                else if (command === "matrix") {
-                    await matrixEffect();
-                }
-                else if (command === "hack") {
-                    await hackEffect();
-                }
-                else if (command === "tree") {
-                    await treeCommand();
-
-                }
-                else if (command === "show" && arg === "hidden") {
-                    print("Hidden / Easter Egg Commands:");
-                    print("");
-                    print("  Network & System:");
-                    print("    traceroute <target> - Trace route to target");
-                    print("    date                - Show current date and time");
-                    print("    time                - Show current time");
-                    print("    ver                 - Show Windows version");
-                    print("    tasklist            - Show running processes");
-                    print("");
-                    print("  Fun Effects:");
-                    print("    matrix              - Enter the matrix");
-                    print("    hack                - Initialize hack sequence");
-                    print("    tree                - Show directory tree");
-                    print("    sudo                - Try sudo access");
-                    print("");
-                    print("  File System:");
-                    print("    dir / ls            - List directory contents");
-                    print("    cd <dir>            - Change directory");
-                    print("    cat <file>          - Display file contents");
-                }
-                // ────── Fake filesystem commands ──────
-                else if (command === "dir" || command === "ls") {
-                    if (e.shiftKey) {
-                        print("dir is angry because you called him ls again...");
-                    } else {
-                        dirCommand();
-                    }
-                }
-                else if (command === "cd") {
-                    cdCommand(arg);
-                }
-                else if (command === "cat" && arg) {
-                    catCommand(arg);
-                }
-
-                else if (
-                    command === "lsass" ||
-                    (command === "taskkill" && /lsass/i.test(arg)) ||
-                    (command === "kill" && arg === "lsass")
-                ) {
-                    print("");
-
-                    await typeLine("Attempting to access LSASS...");
-                    await loadingDots("Verifying process integrity", 4, 600);
-                    await typeLine("Critical system process.");
-                    await typeLine("Termination not permitted.");
-                    await sleep(500);
-
-                    print("");
-                    print("[WARNING]");
-                    print("");
-                    print("I tried this once.");
-                    print("Windows did not forgive me.");
-                    print("");
-                }
-
-                else if (command === "rm") {
-                    print("rm: rm is not recognized in this environment.");
-                }
-
-                else if (command === "del" || command === "erase") {
-                    print("del: access denied.");
-                }
-
-                else if (command === "rm" && /-r[fF]?\s+\*/.test(arg)) {
-                    print("Nice try.");
-                    print("This system runs on NTFS, not fear.");
-                }
-
-                else if (command === "submit" && arg === NF_CTF_FLAG) {
-                    print("✅ Flag accepted.");
-                    print("");
-                    print("🎉 Congratulations!");
-                    print("You successfully completed the NullFrag CTF.");
-                    print("Curiosity is the exploit.");
-                }
-                else if (command === "submit") {
-                    print("❌ Incorrect flag.");
-                }
-
-                // ────── Normal & hidden commands ──────
-                else if (data[command]) {
-                    const lines = data[command].split("\n").filter(x => x.trim());
-                    lines.forEach(line => print(line));
-                }
-                else if (command === "whoami" && e.shiftKey) {
-                    print("root@nullfrag.local # whoami");
-                    print("guest");
-
-                }
-                else {
-                    print(`'${command}' is not recognized as an internal or external command,`);
-                    print("operable program or batch file.");
-
-                    // COMMAND SUGGESTIONS
-                    const suggestion = findSimilarCommand(command);
-                    if (suggestion) {
-                        print(`\nDid you mean: ${suggestion}?`);
-                    }
-                }
-                commandRunning = false;
-                cmdInput.value = "";
-            }
-        });
-
-
-        /* ---------------- FAKE TABS ---------------- */
-        const tabBar = document.getElementById("tabBar");
-        const addTabBtn = document.getElementById("addTab");
-
-        let tabCount = 1;
-
-        addTabBtn.addEventListener("click", () => {
-            tabCount++;
-
-            const tab = document.createElement("div");
-            tab.className = "tab";
-            tab.textContent = `Tab ${tabCount}`;
-
-            // Switch active tab visually
-            tab.addEventListener("click", () => {
-                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-                tab.classList.add("active");
-            });
-
-            // Insert before +
-            tabBar.insertBefore(tab, addTabBtn);
-
-            // Make new tab active
-            document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-        });
-
-        let inspectorOpenCount = 0;
-        let lastInspectorState = false;
-
-        setInterval(() => {
-            const threshold = 100;
-            const widthDiff = window.outerWidth - window.innerWidth;
-            const heightDiff = window.outerHeight - window.innerHeight;
-
-            const isOpen =
-                widthDiff > threshold ||
-                heightDiff > threshold ||
-                (function () {
-                    let opened = false;
-                    const el = new Image();
-                    Object.defineProperty(el, "id", {
-                        get() {
-                            opened = true;
-                        }
-                    });
-                    console.log(el);
-                    return opened;
-                })();
-
-            if (isOpen && !lastInspectorState && !isBooting) {
-                inspectorOpenCount++;
-                print("");
-
-                if (inspectorOpenCount === 1) {
-                    print("⚠️Inspector attached.");
-                    print("⚠️Monitoring input.");
-                    print("");
-                }
-                else if (inspectorOpenCount === 2) {
-                    print("Debugger persistence detected.");
-                    print("Respect.");
-                    print("");
-                    print("Hint: NF{debuggers_see_more}🎉");
-                    print("Use: submit <flag>");
-                    print("");
+        // Board
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (board[r][c]) {
+                    ctx.fillStyle = board[r][c];
+                    ctx.fillRect(c*CELL+1, r*CELL+1, CELL-2, CELL-2);
+                    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                    ctx.fillRect(c*CELL+1, r*CELL+1, CELL-2, 3);
                 }
             }
-            lastInspectorState = isOpen;
-        }, 1000);
-        boot();
-    </script> <script src="mobile.js"></script>
+        }
+
+        // Ghost piece
+        const ghost = { ...tetrisGame.current, y: tetrisGame.current.y };
+        while (!collides(ghost, 0, 1)) ghost.y++;
+        for (let r = 0; r < ghost.shape.length; r++) {
+            for (let c = 0; c < ghost.shape[r].length; c++) {
+                if (!ghost.shape[r][c]) continue;
+                ctx.fillStyle = 'rgba(255,255,255,0.08)';
+                ctx.fillRect((ghost.x+c)*CELL+1, (ghost.y+r)*CELL+1, CELL-2, CELL-2);
+            }
+        }
+
+        // Current piece
+        const p = tetrisGame.current;
+        ctx.shadowBlur = 6; ctx.shadowColor = p.color;
+        for (let r = 0; r < p.shape.length; r++) {
+            for (let c = 0; c < p.shape[r].length; c++) {
+                if (!p.shape[r][c]) continue;
+                ctx.fillStyle = p.color;
+                ctx.fillRect((p.x+c)*CELL+1, (p.y+r)*CELL+1, CELL-2, CELL-2);
+                ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                ctx.fillRect((p.x+c)*CELL+1, (p.y+r)*CELL+1, CELL-2, 3);
+            }
+        }
+        ctx.shadowBlur = 0;
+    }
+
+    function drawNext() {
+        nextCtx.fillStyle = '#111'; nextCtx.fillRect(0, 0, 80, 80);
+        const p = tetrisGame.next;
+        const cellN = 16;
+        const ox = (80 - p.shape[0].length * cellN) / 2;
+        const oy = (80 - p.shape.length * cellN) / 2;
+        for (let r = 0; r < p.shape.length; r++) {
+            for (let c = 0; c < p.shape[r].length; c++) {
+                if (!p.shape[r][c]) continue;
+                nextCtx.fillStyle = p.color;
+                nextCtx.fillRect(ox + c*cellN+1, oy + r*cellN+1, cellN-2, cellN-2);
+            }
+        }
+    }
+
+    function endTetris() {
+        tetrisGame.over = true;
+        clearTimeout(tetrisGame.dropTimer);
+        showToast('🧱', 'Game Over!', `Score: ${tetrisGame.score} | Lines: ${tetrisGame.lines}`);
+        const overlay = document.getElementById('tetris-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.innerHTML = `<div class="to-title">Game Over</div><div class="to-sub">Score: ${tetrisGame.score} | Lines: ${tetrisGame.lines}</div><button class="to-btn" onclick="startTetrisGame()">Play Again</button>`;
+        }
+    }
+
+    function updateTetrisUI() {
+        const s = document.getElementById('tetris-score');
+        const l = document.getElementById('tetris-lines');
+        const lv = document.getElementById('tetris-level');
+        if (s) s.textContent = tetrisGame.score;
+        if (l) l.textContent = tetrisGame.lines;
+        if (lv) lv.textContent = tetrisGame.level;
+    }
+
+    // Expose for keyboard
+    window._tetrisDrop = dropPiece;
+    window._tetrisCollides = collides;
+    window._tetrisDraw = drawTetris;
+    window._tetrisSchedule = scheduleDrop;
+}
+
+function tetrisMove(dir) {
+    if (!tetrisGame || tetrisGame.over) return;
+    if (!window._tetrisCollides(tetrisGame.current, dir, 0)) {
+        tetrisGame.current.x += dir;
+        window._tetrisDraw();
+    }
+}
+
+function tetrisRotate() {
+    if (!tetrisGame || tetrisGame.over) return;
+    const p = tetrisGame.current;
+    const rotated = p.shape[0].map((_, i) => p.shape.map(row => row[i]).reverse());
+    const old = p.shape;
+    p.shape = rotated;
+    // Wall kicks: try 0, -1, +1, -2, +2
+    for (const kick of [0, -1, 1, -2, 2]) {
+        if (!window._tetrisCollides(p, kick, 0)) { p.x += kick; window._tetrisDraw(); return; }
+    }
+    p.shape = old; // Revert if no valid position
+}
+
+function tetrisSoftDrop() {
+    if (!tetrisGame || tetrisGame.over) return;
+    window._tetrisDrop();
+    tetrisGame.score += 1;
+    const s = document.getElementById('tetris-score');
+    if (s) s.textContent = tetrisGame.score;
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!tetrisGame || tetrisGame.over || !windows.tetris) return;
+    switch (e.key) {
+        case 'ArrowLeft': e.preventDefault(); tetrisMove(-1); break;
+        case 'ArrowRight': e.preventDefault(); tetrisMove(1); break;
+        case 'ArrowDown': e.preventDefault(); tetrisSoftDrop(); break;
+        case 'ArrowUp': e.preventDefault(); tetrisRotate(); break;
+        case ' ':
+            e.preventDefault();
+            // Hard drop
+            while (!window._tetrisCollides(tetrisGame.current, 0, 1)) {
+                tetrisGame.current.y++;
+                tetrisGame.score += 2;
+            }
+            window._tetrisDrop();
+            const s = document.getElementById('tetris-score');
+            if (s) s.textContent = tetrisGame.score;
+            break;
+    }
+});
+
+// ── START EVERYTHING ──
+runBios();
+</script>
 </body>
 </html>
