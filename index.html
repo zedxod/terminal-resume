@@ -476,6 +476,80 @@
         .wiki-last-edited{font-size:11px;color:#72777d;margin-top:12px;font-family:'Inter',sans-serif}
         @media(max-width:600px){.wiki-infobox{float:none;width:100%;margin:0 0 16px 0}}
 
+        /* ═══════ WALLPAPER PICKER ═══════ */
+        #wallpaper-picker{position:fixed;inset:0;z-index:90000;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+        #wallpaper-picker.show{display:flex}
+        .wp-panel{background:#1c2128;border:1px solid var(--window-border);border-radius:14px;padding:24px;width:540px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7);font-family:'Inter',system-ui,sans-serif;animation:startOpen 0.25s ease-out}
+        .wp-title{font-size:16px;font-weight:700;color:#e6edf3;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+        .wp-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:16px;color:#8b949e;transition:background 0.1s}
+        .wp-close:hover{background:rgba(255,255,255,0.08)}
+        .wp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+        .wp-option{height:100px;border-radius:10px;cursor:pointer;border:3px solid transparent;transition:border-color 0.2s,transform 0.15s;position:relative;overflow:hidden}
+        .wp-option:hover{transform:scale(1.04)}
+        .wp-option.active{border-color:var(--green);box-shadow:0 0 12px var(--green-glow)}
+        .wp-option .wp-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;font-size:10px;padding:4px 8px;text-align:center;font-family:'Inter',sans-serif}
+
+        /* ═══════ TASK MANAGER ═══════ */
+        .taskmgr-body{background:#0d1117;color:#e6edf3;font-family:'Inter',system-ui,sans-serif;font-size:12px;display:flex;flex-direction:column;height:100%;overflow:hidden}
+        .taskmgr-tabs{display:flex;gap:0;border-bottom:1px solid var(--window-border);background:#161b22;flex-shrink:0}
+        .taskmgr-tab{padding:8px 16px;cursor:pointer;color:#8b949e;font-size:11px;font-weight:600;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s}
+        .taskmgr-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+        .taskmgr-tab:hover{color:#c9d1d9}
+        .taskmgr-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px 16px;border-bottom:1px solid var(--window-border);flex-shrink:0}
+        .taskmgr-stat{display:flex;flex-direction:column;gap:4px}
+        .taskmgr-stat-label{font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+        .taskmgr-stat-value{font-size:18px;font-weight:700}
+        .taskmgr-stat-bar{height:4px;background:#21262d;border-radius:2px;overflow:hidden}
+        .taskmgr-stat-bar-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
+        .taskmgr-proc-header{display:grid;grid-template-columns:24px 1fr 60px 60px 60px;gap:8px;padding:6px 16px;background:#161b22;font-size:10px;color:#484f58;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;border-bottom:1px solid var(--window-border);flex-shrink:0}
+        .taskmgr-proc-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent}
+        .taskmgr-proc-list::-webkit-scrollbar{width:5px}
+        .taskmgr-proc-list::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+        .taskmgr-proc{display:grid;grid-template-columns:24px 1fr 60px 60px 60px;gap:8px;padding:6px 16px;align-items:center;transition:background 0.1s;cursor:default;border-bottom:1px solid rgba(255,255,255,0.02)}
+        .taskmgr-proc:hover{background:rgba(255,255,255,0.03)}
+        .taskmgr-proc.selected{background:rgba(0,212,255,0.08)}
+        .taskmgr-proc-icon{font-size:14px}
+        .taskmgr-proc-name{font-size:12px;color:#c9d1d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .taskmgr-proc-val{font-size:11px;color:#8b949e;text-align:right;font-family:'Fira Code',monospace}
+        .taskmgr-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid var(--window-border);background:#161b22;flex-shrink:0}
+        .taskmgr-end-btn{background:var(--red);color:#fff;border:none;padding:5px 14px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;transition:opacity 0.1s;font-family:'Inter',sans-serif}
+        .taskmgr-end-btn:hover{opacity:0.85}
+        .taskmgr-end-btn:disabled{opacity:0.3;cursor:default}
+        .taskmgr-footer-info{font-size:11px;color:#484f58}
+
+        /* ═══════ SETTINGS APP ═══════ */
+        .settings-body{background:#0d1117;display:flex;height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif}
+        .settings-sidebar{width:200px;background:#161b22;border-right:1px solid var(--window-border);padding:12px 0;overflow-y:auto;flex-shrink:0}
+        .settings-nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;color:#8b949e;font-size:12px;cursor:pointer;transition:background 0.1s,color 0.1s;border-left:3px solid transparent}
+        .settings-nav-item:hover{background:rgba(255,255,255,0.03);color:#c9d1d9}
+        .settings-nav-item.active{background:rgba(0,255,65,0.06);color:var(--green);border-left-color:var(--green)}
+        .settings-nav-icon{font-size:16px;width:22px;text-align:center}
+        .settings-main{flex:1;padding:24px 28px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent}
+        .settings-main::-webkit-scrollbar{width:5px}
+        .settings-main::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+        .settings-section-title{font-size:18px;font-weight:700;color:#e6edf3;margin-bottom:4px}
+        .settings-section-sub{font-size:12px;color:#484f58;margin-bottom:20px}
+        .settings-card{background:#161b22;border:1px solid var(--window-border);border-radius:10px;padding:16px;margin-bottom:12px}
+        .settings-card-title{font-size:13px;font-weight:600;color:#c9d1d9;margin-bottom:10px}
+        .settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+        .settings-row-label{font-size:12px;color:#8b949e}
+        .settings-row-sub{font-size:10px;color:#484f58;margin-top:2px}
+        .settings-toggle{width:40px;height:22px;background:#30363d;border-radius:11px;cursor:pointer;position:relative;transition:background 0.25s}
+        .settings-toggle.on{background:var(--green)}
+        .settings-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform 0.25s}
+        .settings-toggle.on::after{transform:translateX(18px)}
+        .settings-color-row{display:flex;gap:8px;margin-top:8px}
+        .settings-color-opt{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color 0.2s,transform 0.1s}
+        .settings-color-opt:hover{transform:scale(1.15)}
+        .settings-color-opt.active{border-color:#fff;box-shadow:0 0 10px rgba(255,255,255,0.2)}
+        .settings-info-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+        .settings-info-label{color:#484f58}
+        .settings-info-value{color:#c9d1d9}
+        .settings-wp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+        .settings-wp-opt{height:60px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:border-color 0.2s,transform 0.1s}
+        .settings-wp-opt:hover{transform:scale(1.04)}
+        .settings-wp-opt.active{border-color:var(--green);box-shadow:0 0 8px var(--green-glow)}
+
         /* ═══════ PARAM GLITCH EFFECT ═══════ */
         .param-error-line{color:var(--red);font-weight:700;text-shadow:0 0 10px rgba(255,51,51,0.5);animation:paramFlicker 0.15s infinite}
         @keyframes paramFlicker{0%,100%{opacity:1}50%{opacity:0.3}}
@@ -537,6 +611,7 @@
             <div class="desktop-icon" ondblclick="openNotepad()"><div class="icon-img">📄</div><div class="icon-label">README</div></div>
             <div class="desktop-icon" ondblclick="openExplorer()"><div class="icon-img">📁</div><div class="icon-label">Projects</div></div>
             <div class="desktop-icon" ondblclick="openBrowser()"><div class="icon-img">🌐</div><div class="icon-label">Browser</div></div>
+            <div class="desktop-icon" ondblclick="openSettings()"><div class="icon-img">⚙️</div><div class="icon-label">Settings</div></div>
             <div class="desktop-icon" ondblclick="showToast('🗑️','Recycle Bin','Recycle Bin is empty.')"><div class="icon-img">🗑️</div><div class="icon-label">Recycle Bin</div></div>
         </div>
     </div>
@@ -581,7 +656,8 @@
             <div class="start-app" onclick="closeStartMenu();openTerminal()"><span class="start-app-icon">🖥️</span><span class="start-app-name">Terminal</span></div>
             <div class="start-app" onclick="closeStartMenu();openNotepad()"><span class="start-app-icon">📄</span><span class="start-app-name">Notepad</span></div>
             <div class="start-app" onclick="closeStartMenu();openExplorer()"><span class="start-app-icon">📁</span><span class="start-app-name">Files</span></div>
-            <div class="start-app" onclick="closeStartMenu();showToast('⚙️','Settings','Settings app coming soon.')"><span class="start-app-icon">⚙️</span><span class="start-app-name">Settings</span></div>
+            <div class="start-app" onclick="closeStartMenu();openSettings()"><span class="start-app-icon">⚙️</span><span class="start-app-name">Settings</span></div>
+            <div class="start-app" onclick="closeStartMenu();openTaskManager()"><span class="start-app-icon">📊</span><span class="start-app-name">Task Mgr</span></div>
             <div class="start-app" onclick="closeStartMenu();openBrowser()"><span class="start-app-icon">🌐</span><span class="start-app-name">Browser</span></div>
             <div class="start-app" onclick="closeStartMenu();openSnake()"><span class="start-app-icon">🐍</span><span class="start-app-name">Snake</span></div>
             <div class="start-app" onclick="closeStartMenu();openTetris()"><span class="start-app-icon">🧱</span><span class="start-app-name">Tetris</span></div>
@@ -634,8 +710,19 @@
     <div class="context-item" onclick="openNotepad()"><span class="ctx-icon">📄</span>Open Notepad</div>
     <div class="context-item" onclick="openExplorer()"><span class="ctx-icon">📁</span>Open Files</div>
     <div class="context-separator"></div>
-    <div class="context-item" onclick="showToast('⚙️','Display Settings','Resolution: 1920×1080 @ 60Hz')"><span class="ctx-icon">⚙️</span>Display Settings</div>
+    <div class="context-item" onclick="openWallpaperPicker()"><span class="ctx-icon">🖼️</span>Change Wallpaper</div>
+    <div class="context-item" onclick="openSettings()"><span class="ctx-icon">⚙️</span>Settings</div>
+    <div class="context-item" onclick="openTaskManager()"><span class="ctx-icon">📊</span>Task Manager</div>
+    <div class="context-separator"></div>
     <div class="context-item" onclick="showToast('ℹ️','About','NullFrag OS v1.0 Build 19045.4046')"><span class="ctx-icon">ℹ️</span>About NullFrag OS</div>
+</div>
+
+<!-- Wallpaper Picker -->
+<div id="wallpaper-picker">
+    <div class="wp-panel">
+        <div class="wp-title">Choose a Wallpaper<span class="wp-close" onclick="closeWallpaperPicker()">✕</span></div>
+        <div class="wp-grid" id="wp-grid"></div>
+    </div>
 </div>
 
 <!-- BSOD -->
@@ -1241,7 +1328,7 @@ async function bootSequence() {
 
 // ── Commands ──
 const COMMANDS = {
-    help: () => `<div class="cmd-output"><span class="section-title">Available Commands</span>\n<span class="divider">─────────────────────────</span>\n<ul><li><span class="ok">about</span>      — Who is NullFrag?</li><li><span class="ok">skills</span>     — Technical skill set</li><li><span class="ok">projects</span>   — Featured projects</li><li><span class="ok">contact</span>    — Get in touch</li><li><span class="ok">socials</span>    — Social media links</li><li><span class="ok">neofetch</span>   — System information</li><li><span class="ok">clear</span>      — Clear terminal</li><li><span class="ok">matrix</span>     — 👀</li><li><span class="ok">bsod</span>       — Don't do it...</li><li><span class="ok">weather</span>    — Current conditions</li><li><span class="ok">snake</span>      — 🐍 Play Snake!</li><li><span class="ok">tetris</span>     — 🧱 Play Tetris!</li><li><span class="ok">browser</span>    — 🌐 Open NullBrowser</li><li><span class="ok">param</span>      — ⚠️ ???</li><li><span class="ok">history</span>    — Command history</li><li><span class="ok">help</span>       — Show this menu</li></ul></div>`,
+    help: () => `<div class="cmd-output"><span class="section-title">Available Commands</span>\n<span class="divider">─────────────────────────</span>\n<ul><li><span class="ok">about</span>      — Who is NullFrag?</li><li><span class="ok">skills</span>     — Technical skill set</li><li><span class="ok">projects</span>   — Featured projects</li><li><span class="ok">contact</span>    — Get in touch</li><li><span class="ok">socials</span>    — Social media links</li><li><span class="ok">neofetch</span>   — System information</li><li><span class="ok">clear</span>      — Clear terminal</li><li><span class="ok">matrix</span>     — 👀</li><li><span class="ok">bsod</span>       — Don't do it...</li><li><span class="ok">weather</span>    — Current conditions</li><li><span class="ok">snake</span>      — 🐍 Play Snake!</li><li><span class="ok">tetris</span>     — 🧱 Play Tetris!</li><li><span class="ok">browser</span>    — 🌐 Open NullBrowser</li><li><span class="ok">settings</span>   — ⚙️ Open Settings</li><li><span class="ok">taskmgr</span>    — 📊 Task Manager</li><li><span class="ok">wallpaper</span>  — 🖼️ Change wallpaper</li><li><span class="ok">param</span>      — ⚠️ ???</li><li><span class="ok">history</span>    — Command history</li><li><span class="ok">help</span>       — Show this menu</li></ul></div>`,
 
     about: () => `<div class="cmd-output"><span class="section-title">┌─ About Paramdeep Singh ─┐</span><br><span class="white">  Hey! I'm <span class="ok">Paramdeep Singh</span> — a developer, creator, and</span>\n<span class="white">  tech enthusiast from <span class="accent">New Delhi</span> who loves building</span>\n<span class="white">  things that live on the edge of creativity and code.</span><br><span class="dim">  "Breaking things to understand how they work."</span></div>`,
 
@@ -1284,6 +1371,9 @@ const COMMANDS = {
     snake: () => { openSnake(); return `<span class="ok">  🐍 Launching Snake...</span> <span class="dim">Use arrow keys or WASD to play!</span>`; },
     tetris: () => { openTetris(); return `<span class="ok">  🧱 Launching Tetris...</span> <span class="dim">Arrow keys to move, Up to rotate!</span>`; },
     browser: () => { openBrowser(); return `<span class="ok">  🌐 Launching Browser...</span>`; },
+    settings: () => { openSettings(); return `<span class="ok">  ⚙️ Opening Settings...</span>`; },
+    taskmgr: () => { openTaskManager(); return `<span class="ok">  📊 Opening Task Manager...</span>`; },
+    wallpaper: () => { openWallpaperPicker(); return `<span class="ok">  🖼️ Opening wallpaper picker...</span>`; },
     param: () => '__PARAM__',
     shutdown: () => { doShutdown(); return `<span class="dim">  Initiating shutdown sequence...</span>`; },
     restart: () => { doRestart(); return `<span class="dim">  Restarting NullFrag OS...</span>`; },
@@ -2032,6 +2122,475 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ══════════════════════════════════════
+//   WALLPAPER SYSTEM
+// ══════════════════════════════════════
+const WALLPAPERS = [
+    { name: 'Default', css: 'linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%)' },
+    { name: 'Midnight', css: 'linear-gradient(135deg, #0a0e27 0%, #1a1a4e 40%, #0a0e27 100%)' },
+    { name: 'Forest', css: 'linear-gradient(135deg, #071a0e 0%, #0d2818 50%, #071a0e 100%)' },
+    { name: 'Sunset', css: 'linear-gradient(135deg, #1a0a0a 0%, #2d1515 30%, #1a0f05 100%)' },
+    { name: 'Ocean', css: 'linear-gradient(135deg, #050d1a 0%, #0a1e3d 50%, #050d1a 100%)' },
+    { name: 'Nebula', css: 'radial-gradient(ellipse at 30% 20%, #1a0533 0%, #0d0d2b 40%, #060618 100%)' },
+    { name: 'Matrix', css: 'linear-gradient(180deg, #000a00 0%, #001a00 50%, #000a00 100%)' },
+    { name: 'Amber CRT', css: 'radial-gradient(ellipse at center, #1a1200 0%, #0d0a00 60%, #000 100%)' },
+    { name: 'Cyber', css: 'linear-gradient(135deg, #0d0015 0%, #150028 30%, #001a2e 70%, #0d0015 100%)' },
+];
+
+let currentWallpaper = parseInt(localStorage.getItem('nf-wallpaper') || '0');
+
+function applyWallpaper(idx) {
+    currentWallpaper = idx;
+    localStorage.setItem('nf-wallpaper', idx);
+    document.getElementById('desktop-screen').style.background = WALLPAPERS[idx].css;
+    // Update active state in pickers
+    document.querySelectorAll('.wp-option').forEach((el, i) => el.classList.toggle('active', i === idx));
+    document.querySelectorAll('.settings-wp-opt').forEach((el, i) => el.classList.toggle('active', i === idx));
+}
+
+function openWallpaperPicker() {
+    const picker = document.getElementById('wallpaper-picker');
+    const grid = document.getElementById('wp-grid');
+    grid.innerHTML = '';
+    WALLPAPERS.forEach((wp, i) => {
+        const opt = document.createElement('div');
+        opt.className = 'wp-option' + (i === currentWallpaper ? ' active' : '');
+        opt.style.background = wp.css;
+        opt.innerHTML = `<div class="wp-label">${wp.name}</div>`;
+        opt.onclick = () => { applyWallpaper(i); closeWallpaperPicker(); showToast('🖼️', 'Wallpaper', `Changed to "${wp.name}"`); };
+        grid.appendChild(opt);
+    });
+    picker.classList.add('show');
+}
+
+function closeWallpaperPicker() {
+    document.getElementById('wallpaper-picker').classList.remove('show');
+}
+
+// Close wallpaper picker on outside click
+document.getElementById('wallpaper-picker').addEventListener('click', (e) => {
+    if (e.target.id === 'wallpaper-picker') closeWallpaperPicker();
+});
+
+// Apply saved wallpaper on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (currentWallpaper > 0) applyWallpaper(currentWallpaper);
+});
+
+// ══════════════════════════════════════
+//   TASK MANAGER
+// ══════════════════════════════════════
+let taskmgrInterval = null;
+let selectedProcess = null;
+
+const SYSTEM_PROCESSES = [
+    { icon: '🛡️', name: 'System Security Service', cpuBase: 1, ramBase: 45 },
+    { icon: '📡', name: 'NullNet Network Stack', cpuBase: 2, ramBase: 32 },
+    { icon: '💾', name: 'Disk I/O Manager', cpuBase: 0.5, ramBase: 18 },
+    { icon: '🔒', name: 'Encryption Module (AES-256)', cpuBase: 1.5, ramBase: 64 },
+    { icon: '📊', name: 'System Monitor Agent', cpuBase: 0.8, ramBase: 12 },
+    { icon: '🖥️', name: 'Window Compositor', cpuBase: 3, ramBase: 88 },
+    { icon: '⚡', name: 'Power Management', cpuBase: 0.3, ramBase: 8 },
+    { icon: '🌐', name: 'DNS Resolver', cpuBase: 0.5, ramBase: 14 },
+    { icon: '📦', name: 'Package Manager Daemon', cpuBase: 0.2, ramBase: 22 },
+    { icon: '🔔', name: 'Notification Service', cpuBase: 0.1, ramBase: 6 },
+];
+
+function getAppProcesses() {
+    const appProcs = [];
+    const appMap = {
+        terminal: { icon: '🖥️', name: 'Terminal — NullShell', cpuBase: 4, ramBase: 120 },
+        notepad: { icon: '📄', name: 'Notepad — README.md', cpuBase: 1, ramBase: 28 },
+        explorer: { icon: '📁', name: 'File Explorer', cpuBase: 2, ramBase: 55 },
+        browser: { icon: '🌐', name: 'NullBrowser', cpuBase: 8, ramBase: 280 },
+        snake: { icon: '🐍', name: 'Snake Game', cpuBase: 5, ramBase: 35 },
+        tetris: { icon: '🧱', name: 'Tetris', cpuBase: 5, ramBase: 38 },
+        settings: { icon: '⚙️', name: 'Settings', cpuBase: 1, ramBase: 42 },
+        taskmgr: { icon: '📊', name: 'Task Manager', cpuBase: 2, ramBase: 30 },
+    };
+    for (const [id, win] of Object.entries(windows)) {
+        if (win && win.el && appMap[id]) {
+            appProcs.push({ ...appMap[id], id });
+        }
+    }
+    return appProcs;
+}
+
+function openTaskManager() {
+    if (windows.taskmgr) { focusWindow('taskmgr'); return; }
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(560, vw - 60), h = Math.min(500, vh - 100);
+    const x = (vw - w) / 2 + 30, y = (vh - 48 - h) / 2 + 20;
+
+    const bodyHtml = `<div class="taskmgr-body">
+        <div class="taskmgr-tabs">
+            <div class="taskmgr-tab active">Processes</div>
+            <div class="taskmgr-tab">Performance</div>
+        </div>
+        <div class="taskmgr-stats" id="taskmgr-stats">
+            <div class="taskmgr-stat">
+                <div class="taskmgr-stat-label">CPU</div>
+                <div class="taskmgr-stat-value" id="tm-cpu" style="color:var(--cyan)">0%</div>
+                <div class="taskmgr-stat-bar"><div class="taskmgr-stat-bar-fill" id="tm-cpu-bar" style="background:var(--cyan);width:0%"></div></div>
+            </div>
+            <div class="taskmgr-stat">
+                <div class="taskmgr-stat-label">Memory</div>
+                <div class="taskmgr-stat-value" id="tm-ram" style="color:var(--green)">0 MB</div>
+                <div class="taskmgr-stat-bar"><div class="taskmgr-stat-bar-fill" id="tm-ram-bar" style="background:var(--green);width:0%"></div></div>
+            </div>
+            <div class="taskmgr-stat">
+                <div class="taskmgr-stat-label">Disk</div>
+                <div class="taskmgr-stat-value" id="tm-disk" style="color:var(--amber)">0%</div>
+                <div class="taskmgr-stat-bar"><div class="taskmgr-stat-bar-fill" id="tm-disk-bar" style="background:var(--amber);width:0%"></div></div>
+            </div>
+        </div>
+        <div class="taskmgr-proc-header"><span></span><span>Name</span><span style="text-align:right">CPU</span><span style="text-align:right">RAM</span><span style="text-align:right">Disk</span></div>
+        <div class="taskmgr-proc-list" id="tm-proc-list"></div>
+        <div class="taskmgr-footer">
+            <button class="taskmgr-end-btn" id="tm-end-btn" onclick="endTaskProcess()" disabled>End Task</button>
+            <div class="taskmgr-footer-info" id="tm-footer-info">Processes: 0 | Uptime: 0:00</div>
+        </div>
+    </div>`;
+
+    createWindow('taskmgr', 'Task Manager', '📊', x, y, w, h, bodyHtml);
+    selectedProcess = null;
+    updateTaskManager();
+    taskmgrInterval = setInterval(updateTaskManager, 1500);
+}
+
+function updateTaskManager() {
+    if (!windows.taskmgr) { clearInterval(taskmgrInterval); return; }
+    const list = document.getElementById('tm-proc-list');
+    if (!list) return;
+
+    const apps = getAppProcesses();
+    const allProcs = [...apps, ...SYSTEM_PROCESSES];
+
+    let totalCpu = 0, totalRam = 0, totalDisk = 0;
+    const rows = allProcs.map((p, i) => {
+        const cpu = Math.max(0.1, p.cpuBase + (Math.random() * p.cpuBase * 0.8 - p.cpuBase * 0.3)).toFixed(1);
+        const ram = Math.round(p.ramBase + (Math.random() * p.ramBase * 0.4 - p.ramBase * 0.15));
+        const disk = (Math.random() * 2).toFixed(1);
+        totalCpu += parseFloat(cpu);
+        totalRam += ram;
+        totalDisk += parseFloat(disk);
+        const isApp = !!p.id;
+        const sel = selectedProcess === (p.id || p.name) ? ' selected' : '';
+        return `<div class="taskmgr-proc${sel}" onclick="selectProcess('${p.id || p.name}', ${isApp})" ondblclick="${isApp ? "focusWindow('" + p.id + "')" : ''}">
+            <span class="taskmgr-proc-icon">${p.icon}</span>
+            <span class="taskmgr-proc-name">${p.name}</span>
+            <span class="taskmgr-proc-val">${cpu}%</span>
+            <span class="taskmgr-proc-val">${ram} MB</span>
+            <span class="taskmgr-proc-val">${disk} MB/s</span>
+        </div>`;
+    });
+
+    list.innerHTML = rows.join('');
+    totalCpu = Math.min(totalCpu, 100);
+    const ramPct = Math.min((totalRam / 16384 * 100), 85);
+    const diskPct = Math.min(totalDisk, 50);
+
+    const cpuEl = document.getElementById('tm-cpu');
+    const ramEl = document.getElementById('tm-ram');
+    const diskEl = document.getElementById('tm-disk');
+    const cpuBar = document.getElementById('tm-cpu-bar');
+    const ramBar = document.getElementById('tm-ram-bar');
+    const diskBar = document.getElementById('tm-disk-bar');
+    const footer = document.getElementById('tm-footer-info');
+
+    if (cpuEl) cpuEl.textContent = totalCpu.toFixed(0) + '%';
+    if (ramEl) ramEl.textContent = totalRam + ' MB';
+    if (diskEl) diskEl.textContent = diskPct.toFixed(0) + '%';
+    if (cpuBar) cpuBar.style.width = totalCpu + '%';
+    if (ramBar) ramBar.style.width = ramPct + '%';
+    if (diskBar) diskBar.style.width = (diskPct * 2) + '%';
+
+    const uptime = Math.floor((Date.now() - window._bootTime) / 1000);
+    const hrs = Math.floor(uptime / 3600);
+    const mins = Math.floor((uptime % 3600) / 60);
+    const secs = uptime % 60;
+    if (footer) footer.textContent = `Processes: ${allProcs.length} | Uptime: ${hrs}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+}
+
+function selectProcess(id, isApp) {
+    selectedProcess = id;
+    document.querySelectorAll('.taskmgr-proc').forEach(el => el.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    const btn = document.getElementById('tm-end-btn');
+    if (btn) btn.disabled = !isApp;
+}
+
+function endTaskProcess() {
+    if (!selectedProcess) return;
+    if (selectedProcess === 'taskmgr') {
+        closeWin('taskmgr');
+        clearInterval(taskmgrInterval);
+        return;
+    }
+    if (windows[selectedProcess]) {
+        closeWin(selectedProcess);
+        showToast('📊', 'Task Manager', `Ended: ${selectedProcess}`);
+        selectedProcess = null;
+        const btn = document.getElementById('tm-end-btn');
+        if (btn) btn.disabled = true;
+        updateTaskManager();
+    }
+}
+
+// Track boot time for uptime display
+window._bootTime = Date.now();
+
+// Clean up task manager interval on close
+const origCloseWin = closeWin;
+closeWin = function(id) {
+    if (id === 'taskmgr') clearInterval(taskmgrInterval);
+    origCloseWin(id);
+};
+
+// ══════════════════════════════════════
+//   SETTINGS APP
+// ══════════════════════════════════════
+let settingsSection = 'personalization';
+let crtEnabled = localStorage.getItem('nf-crt') !== 'off';
+let gridEnabled = localStorage.getItem('nf-grid') !== 'off';
+let animationsEnabled = localStorage.getItem('nf-anim') !== 'off';
+let accentColor = localStorage.getItem('nf-accent') || '#00ff41';
+
+const ACCENT_COLORS = [
+    { name: 'Matrix Green', color: '#00ff41' },
+    { name: 'Cyber Cyan', color: '#00d4ff' },
+    { name: 'Neon Purple', color: '#a855f7' },
+    { name: 'Hot Pink', color: '#ec4899' },
+    { name: 'Amber', color: '#ffb000' },
+    { name: 'Ice Blue', color: '#38bdf8' },
+    { name: 'Lime', color: '#84cc16' },
+    { name: 'Red', color: '#ef4444' },
+];
+
+function applySettings() {
+    // CRT scanlines
+    const crt = document.querySelector('.crt');
+    if (crt) crt.style.display = crtEnabled ? 'block' : 'none';
+
+    // Grid background
+    const desktop = document.getElementById('desktop-screen');
+    if (desktop) desktop.style.setProperty('--grid-opacity', gridEnabled ? '1' : '0');
+    const beforeStyle = document.querySelector('#desktop-screen')?.style;
+
+    // Accent color
+    document.documentElement.style.setProperty('--green', accentColor);
+    const dim = accentColor + 'cc';
+    const glow = accentColor + '80';
+    document.documentElement.style.setProperty('--green-dim', dim);
+    document.documentElement.style.setProperty('--green-glow', glow);
+}
+
+function openSettings() {
+    if (windows.settings) { focusWindow('settings'); return; }
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(700, vw - 60), h = Math.min(500, vh - 100);
+    const x = (vw - w) / 2, y = (vh - 48 - h) / 2;
+
+    const bodyHtml = `<div class="settings-body">
+        <div class="settings-sidebar">
+            <div class="settings-nav-item active" onclick="switchSettingsSection('personalization', this)"><span class="settings-nav-icon">🎨</span>Personalization</div>
+            <div class="settings-nav-item" onclick="switchSettingsSection('display', this)"><span class="settings-nav-icon">🖥️</span>Display</div>
+            <div class="settings-nav-item" onclick="switchSettingsSection('system', this)"><span class="settings-nav-icon">⚙️</span>System</div>
+            <div class="settings-nav-item" onclick="switchSettingsSection('about', this)"><span class="settings-nav-icon">ℹ️</span>About</div>
+        </div>
+        <div class="settings-main" id="settings-main"></div>
+    </div>`;
+
+    createWindow('settings', 'Settings', '⚙️', x, y, w, h, bodyHtml);
+    renderSettingsSection('personalization');
+}
+
+function switchSettingsSection(section, navItem) {
+    settingsSection = section;
+    document.querySelectorAll('.settings-nav-item').forEach(el => el.classList.remove('active'));
+    if (navItem) navItem.classList.add('active');
+    renderSettingsSection(section);
+}
+
+function renderSettingsSection(section) {
+    const main = document.getElementById('settings-main');
+    if (!main) return;
+
+    if (section === 'personalization') {
+        let wpHtml = '';
+        WALLPAPERS.forEach((wp, i) => {
+            wpHtml += `<div class="settings-wp-opt${i === currentWallpaper ? ' active' : ''}" style="background:${wp.css}" onclick="applyWallpaper(${i});renderSettingsSection('personalization');showToast('🖼️','Wallpaper','Changed to \\'${wp.name}\\'')"></div>`;
+        });
+        let colorHtml = '';
+        ACCENT_COLORS.forEach(c => {
+            colorHtml += `<div class="settings-color-opt${accentColor === c.color ? ' active' : ''}" style="background:${c.color}" title="${c.name}" onclick="changeAccentColor('${c.color}');renderSettingsSection('personalization')"></div>`;
+        });
+
+        main.innerHTML = `
+            <div class="settings-section-title">Personalization</div>
+            <div class="settings-section-sub">Customize your desktop appearance</div>
+            <div class="settings-card">
+                <div class="settings-card-title">Wallpaper</div>
+                <div class="settings-wp-grid">${wpHtml}</div>
+            </div>
+            <div class="settings-card">
+                <div class="settings-card-title">Accent Color</div>
+                <div class="settings-row"><div><div class="settings-row-label">Choose your accent color</div><div class="settings-row-sub">Applied to highlights, buttons, and UI elements</div></div></div>
+                <div class="settings-color-row">${colorHtml}</div>
+            </div>`;
+    } else if (section === 'display') {
+        main.innerHTML = `
+            <div class="settings-section-title">Display</div>
+            <div class="settings-section-sub">Manage visual effects and display options</div>
+            <div class="settings-card">
+                <div class="settings-card-title">Visual Effects</div>
+                <div class="settings-row">
+                    <div><div class="settings-row-label">CRT Scanlines</div><div class="settings-row-sub">Retro CRT screen effect overlay</div></div>
+                    <div class="settings-toggle${crtEnabled ? ' on' : ''}" onclick="toggleSetting('crt', this)"></div>
+                </div>
+                <div class="settings-row">
+                    <div><div class="settings-row-label">Desktop Grid</div><div class="settings-row-sub">Background grid pattern on desktop</div></div>
+                    <div class="settings-toggle${gridEnabled ? ' on' : ''}" onclick="toggleSetting('grid', this)"></div>
+                </div>
+                <div class="settings-row">
+                    <div><div class="settings-row-label">Animations</div><div class="settings-row-sub">Window open/close animations</div></div>
+                    <div class="settings-toggle${animationsEnabled ? ' on' : ''}" onclick="toggleSetting('anim', this)"></div>
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="settings-card-title">Resolution</div>
+                <div class="settings-row"><div class="settings-row-label">Current</div><div style="color:#c9d1d9;font-size:12px">${window.innerWidth} × ${window.innerHeight}</div></div>
+                <div class="settings-row"><div class="settings-row-label">Refresh Rate</div><div style="color:#c9d1d9;font-size:12px">60 Hz</div></div>
+                <div class="settings-row"><div class="settings-row-label">Scaling</div><div style="color:#c9d1d9;font-size:12px">${Math.round(window.devicePixelRatio * 100)}%</div></div>
+            </div>`;
+    } else if (section === 'system') {
+        main.innerHTML = `
+            <div class="settings-section-title">System</div>
+            <div class="settings-section-sub">System information and management</div>
+            <div class="settings-card">
+                <div class="settings-card-title">Storage</div>
+                <div class="settings-row"><div class="settings-row-label">NullDrive SSD</div><div style="color:var(--green);font-size:12px;font-weight:600">256 GB / 1 TB used</div></div>
+                <div style="height:6px;background:#21262d;border-radius:3px;margin-top:4px;overflow:hidden"><div style="height:100%;width:25%;background:var(--green);border-radius:3px"></div></div>
+                <div class="settings-row" style="margin-top:8px"><div class="settings-row-label">NullDrive HDD</div><div style="color:var(--amber);font-size:12px;font-weight:600">2.1 TB / 4 TB used</div></div>
+                <div style="height:6px;background:#21262d;border-radius:3px;margin-top:4px;overflow:hidden"><div style="height:100%;width:52%;background:var(--amber);border-radius:3px"></div></div>
+            </div>
+            <div class="settings-card">
+                <div class="settings-card-title">Power</div>
+                <div class="settings-row">
+                    <div class="settings-row-label">Power Plan</div>
+                    <div style="color:#c9d1d9;font-size:12px">High Performance ⚡</div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label">Battery</div>
+                    <div style="color:var(--green);font-size:12px;font-weight:600">98% — Plugged in</div>
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="settings-card-title">Reset</div>
+                <div class="settings-row">
+                    <div><div class="settings-row-label">Reset all settings</div><div class="settings-row-sub">Restore default wallpaper, accent color, and effects</div></div>
+                    <button style="background:var(--red);color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif" onclick="resetAllSettings()">Reset</button>
+                </div>
+            </div>`;
+    } else if (section === 'about') {
+        const uptime = Math.floor((Date.now() - window._bootTime) / 1000);
+        const hrs = Math.floor(uptime / 3600);
+        const mins = Math.floor((uptime % 3600) / 60);
+        main.innerHTML = `
+            <div class="settings-section-title">About</div>
+            <div class="settings-section-sub">System specifications</div>
+            <div class="settings-card">
+                <div style="text-align:center;padding:12px 0 16px">
+                    <div style="font-size:40px;margin-bottom:8px">🛡️</div>
+                    <div style="font-size:18px;font-weight:700;color:var(--green);text-shadow:0 0 15px var(--green-glow)">NullFrag OS</div>
+                    <div style="font-size:11px;color:#484f58;margin-top:4px">Version 1.0 — Build 19045.4046</div>
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="settings-card-title">Device Specifications</div>
+                <div class="settings-info-row"><span class="settings-info-label">Device name</span><span class="settings-info-value">NULLFRAG-PC</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">Processor</span><span class="settings-info-value">NullCore i9-13900K @ 4.20GHz</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">GPU</span><span class="settings-info-value">NullForce RTX 5090 24GB</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">RAM</span><span class="settings-info-value">16384 MB DDR5</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">System type</span><span class="settings-info-value">64-bit operating system</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">Owner</span><span class="settings-info-value">Paramdeep Singh</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">Uptime</span><span class="settings-info-value">${hrs}h ${mins}m</span></div>
+            </div>
+            <div class="settings-card">
+                <div class="settings-card-title">Network</div>
+                <div class="settings-info-row"><span class="settings-info-label">Adapter</span><span class="settings-info-value">NullNet Gigabit Ethernet</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">Status</span><span class="settings-info-value" style="color:var(--green)">● Connected</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">IPv4</span><span class="settings-info-value">192.168.1.42</span></div>
+                <div class="settings-info-row"><span class="settings-info-label">DNS</span><span class="settings-info-value">1.1.1.1 (Cloudflare)</span></div>
+            </div>`;
+    }
+}
+
+function toggleSetting(key, el) {
+    if (key === 'crt') {
+        crtEnabled = !crtEnabled;
+        localStorage.setItem('nf-crt', crtEnabled ? 'on' : 'off');
+    } else if (key === 'grid') {
+        gridEnabled = !gridEnabled;
+        localStorage.setItem('nf-grid', gridEnabled ? 'on' : 'off');
+    } else if (key === 'anim') {
+        animationsEnabled = !animationsEnabled;
+        localStorage.setItem('nf-anim', animationsEnabled ? 'on' : 'off');
+    }
+    el.classList.toggle('on');
+    applySettings();
+}
+
+function changeAccentColor(color) {
+    accentColor = color;
+    localStorage.setItem('nf-accent', color);
+    applySettings();
+    showToast('🎨', 'Accent Color', `Changed to ${ACCENT_COLORS.find(c => c.color === color)?.name || color}`);
+}
+
+function resetAllSettings() {
+    localStorage.removeItem('nf-wallpaper');
+    localStorage.removeItem('nf-crt');
+    localStorage.removeItem('nf-grid');
+    localStorage.removeItem('nf-anim');
+    localStorage.removeItem('nf-accent');
+    currentWallpaper = 0;
+    crtEnabled = true;
+    gridEnabled = true;
+    animationsEnabled = true;
+    accentColor = '#00ff41';
+    applyWallpaper(0);
+    applySettings();
+    renderSettingsSection(settingsSection);
+    showToast('⚙️', 'Settings', 'All settings reset to defaults');
+}
+
+// Apply saved settings on page load
+(function initSettings() {
+    applySettings();
+    if (currentWallpaper > 0) applyWallpaper(currentWallpaper);
+
+    // Apply grid toggle via CSS override
+    const style = document.createElement('style');
+    style.id = 'dynamic-grid-style';
+    style.textContent = gridEnabled ? '' : '#desktop-screen::before{display:none!important}';
+    document.head.appendChild(style);
+})();
+
+// Override grid toggle to use dynamic style
+const origToggle = toggleSetting;
+toggleSetting = function(key, el) {
+    origToggle(key, el);
+    const dynStyle = document.getElementById('dynamic-grid-style');
+    if (dynStyle) dynStyle.textContent = gridEnabled ? '' : '#desktop-screen::before{display:none!important}';
+    if (key === 'anim') {
+        const animStyle = document.getElementById('dynamic-anim-style') || document.createElement('style');
+        animStyle.id = 'dynamic-anim-style';
+        animStyle.textContent = animationsEnabled ? '' : '.os-window{animation:none!important}';
+        if (!animStyle.parentNode) document.head.appendChild(animStyle);
+    }
+};
+
+// ══════════════════════════════════════
 //   PARAM MISSING — EASTER EGG
 // ══════════════════════════════════════
 async function triggerParamMissing() {
@@ -2242,4 +2801,3 @@ runBios();
 </script>
 </body>
 </html>
-
