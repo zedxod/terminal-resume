@@ -9,7 +9,7 @@
     <meta property="og:description" content="NullFrag OS — Secure Terminal Interface">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nullfrag.online">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬛</text></svg>">
+    <link rel="icon" type="image/png" href="assets/icons/favicon.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -394,6 +394,94 @@
         .tetris-mobile-controls button{width:44px;height:44px;background:rgba(0,212,255,0.1);border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);font-size:18px;cursor:pointer}
         @media(max-width:768px){.tetris-mobile-controls{display:grid;grid-template-columns:repeat(4,44px);justify-content:center}}
 
+        /* ═══════ BROWSER ═══════ */
+        .browser-toolbar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#1c2128;border-bottom:1px solid var(--window-border);flex-shrink:0}
+        .browser-nav-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;color:#8b949e;font-size:14px;background:transparent;border:none;transition:background 0.1s;font-family:inherit}
+        .browser-nav-btn:hover{background:rgba(255,255,255,0.06)}
+        .browser-nav-btn:disabled{opacity:0.3;cursor:default}
+        .browser-nav-btn:disabled:hover{background:transparent}
+        .browser-url-bar{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid var(--window-border);border-radius:20px;padding:5px 14px;transition:border-color 0.2s}
+        .browser-url-bar:focus-within{border-color:var(--cyan)}
+        .browser-url-bar svg{width:14px;height:14px;stroke:#484f58;fill:none;stroke-width:2;flex-shrink:0}
+        .browser-url-input{background:transparent;border:none;color:#c9d1d9;font-family:'Inter',system-ui,sans-serif;font-size:12px;outline:none;flex:1}
+        .browser-bookmarks{display:flex;align-items:center;gap:2px;padding:4px 10px;background:#161b22;border-bottom:1px solid var(--window-border);flex-shrink:0;overflow-x:auto}
+        .browser-bookmark{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:4px;cursor:pointer;color:#8b949e;font-family:'Inter',system-ui,sans-serif;font-size:11px;white-space:nowrap;transition:background 0.1s}
+        .browser-bookmark:hover{background:rgba(255,255,255,0.06);color:#c9d1d9}
+        .browser-bookmark .bm-icon{font-size:12px}
+        .browser-viewport{flex:1;position:relative;background:#0d1117;overflow:hidden}
+        .browser-viewport iframe{width:100%;height:100%;border:none;background:#fff}
+        .browser-loading{position:absolute;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--green));z-index:5;animation:browserLoad 1.5s ease-in-out infinite;width:30%}
+        @keyframes browserLoad{0%{left:-30%;width:30%}50%{width:40%}100%{left:100%;width:30%}}
+        .browser-home{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0d1117;z-index:2;font-family:'Inter',system-ui,sans-serif}
+        .browser-home-logo{font-size:48px;margin-bottom:8px}
+        .browser-home-title{font-size:22px;font-weight:700;color:var(--green);text-shadow:0 0 20px var(--green-glow)}
+        .browser-home-sub{font-size:12px;color:#484f58}
+        .browser-home-search{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid var(--window-border);border-radius:25px;padding:10px 20px;width:380px;max-width:90%;transition:border-color 0.2s}
+        .browser-home-search:focus-within{border-color:var(--cyan)}
+        .browser-home-search svg{width:16px;height:16px;stroke:#484f58;fill:none;stroke-width:2;flex-shrink:0}
+        .browser-home-search input{background:transparent;border:none;color:#fff;font-family:inherit;font-size:13px;outline:none;flex:1}
+        .browser-home-shortcuts{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+        .browser-home-shortcut{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px;border-radius:10px;cursor:pointer;transition:background 0.15s;width:90px}
+        .browser-home-shortcut:hover{background:rgba(255,255,255,0.06)}
+        .browser-home-shortcut .bhs-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:22px}
+        .browser-home-shortcut .bhs-name{font-size:11px;color:#8b949e;text-align:center}
+        .browser-error{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#0d1117;z-index:3;font-family:'Inter',system-ui,sans-serif}
+        .browser-error .be-icon{font-size:48px;margin-bottom:8px}
+        .browser-error .be-title{font-size:18px;font-weight:600;color:#e6edf3}
+        .browser-error .be-msg{font-size:13px;color:#8b949e;text-align:center;max-width:380px;line-height:1.5}
+        .browser-error .be-url{font-size:11px;color:#484f58;font-family:'Fira Code',monospace;margin-top:4px}
+        .browser-error .be-back{background:var(--cyan);color:#000;border:none;padding:8px 20px;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px;margin-top:8px;transition:transform 0.1s}
+        .browser-error .be-back:hover{transform:scale(1.05)}
+
+        /* ═══════ WIKIPEDIA PAGE ═══════ */
+        .wiki-page{background:#fff;color:#202122;font-family:'Linux Libertine','Georgia','Times',serif;font-size:14px;line-height:1.6;padding:0;height:100%;overflow-y:auto;user-select:text}
+        .wiki-page *{box-sizing:border-box}
+        .wiki-header{background:#fff;border-bottom:1px solid #a7d7f9;padding:8px 20px;display:flex;align-items:center;justify-content:space-between}
+        .wiki-logo{display:flex;align-items:center;gap:8px;font-family:'Linux Libertine',Georgia,serif;font-size:13px;color:#000}
+        .wiki-logo-img{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:28px}
+        .wiki-logo-text{display:flex;flex-direction:column}
+        .wiki-logo-title{font-size:16px;font-weight:normal;letter-spacing:-0.5px}
+        .wiki-logo-sub{font-size:9px;color:#54595d;letter-spacing:0.5px;font-family:'Inter',sans-serif}
+        .wiki-tabs{display:flex;gap:0;border-bottom:1px solid #a7d7f9;padding:0 20px;background:#fff}
+        .wiki-tab{padding:6px 14px;font-family:'Inter',sans-serif;font-size:12px;color:#0645ad;cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:2px 2px 0 0;position:relative;top:1px}
+        .wiki-tab.active{background:#fff;border-color:#a7d7f9;color:#202122;font-weight:bold}
+        .wiki-tab:hover{text-decoration:underline}
+        .wiki-content{max-width:960px;padding:16px 24px 40px;margin:0}
+        .wiki-content h1{font-family:'Linux Libertine',Georgia,serif;font-size:28px;font-weight:normal;border-bottom:1px solid #a2a9b1;padding-bottom:4px;margin:0 0 12px;color:#000}
+        .wiki-content h2{font-family:'Linux Libertine',Georgia,serif;font-size:20px;font-weight:normal;border-bottom:1px solid #a2a9b1;padding-bottom:2px;margin:20px 0 8px;color:#000}
+        .wiki-content h3{font-family:'Linux Libertine',Georgia,serif;font-size:16px;font-weight:bold;margin:16px 0 6px;color:#000}
+        .wiki-content p{margin:6px 0;color:#202122}
+        .wiki-content a{color:#0645ad;text-decoration:none}
+        .wiki-content a:hover{text-decoration:underline}
+        .wiki-content .wiki-shortdesc{font-style:italic;color:#54595d;font-size:13px;margin-bottom:12px;font-family:'Inter',sans-serif}
+        .wiki-content .wiki-disambiguation{background:#f8eaba;border:1px solid #e0c252;padding:8px 14px;font-size:13px;margin-bottom:16px;border-radius:2px;font-family:'Inter',sans-serif}
+        .wiki-content .wiki-disambiguation a{color:#0645ad}
+        .wiki-infobox{float:right;width:280px;margin:0 0 16px 20px;border:1px solid #a2a9b1;border-collapse:collapse;background:#f8f9fa;font-size:12px;font-family:'Inter',sans-serif;line-height:1.5}
+        .wiki-infobox caption{background:#1a4d2e;color:#fff;padding:8px 10px;font-size:14px;font-weight:700;text-align:center;caption-side:top}
+        .wiki-infobox tr{border-bottom:1px solid #e0e0e0}
+        .wiki-infobox th{background:#e8f5e9;padding:5px 10px;text-align:left;font-weight:600;color:#333;width:90px;vertical-align:top}
+        .wiki-infobox td{padding:5px 10px;color:#202122;vertical-align:top}
+        .wiki-infobox .infobox-img{text-align:center;padding:12px;font-size:64px;background:#e8f5e9}
+        .wiki-toc{background:#f8f9fa;border:1px solid #a2a9b1;padding:10px 16px;margin:12px 0;display:inline-block;font-family:'Inter',sans-serif;font-size:12px}
+        .wiki-toc .toc-title{font-weight:700;font-size:13px;margin-bottom:6px;text-align:center}
+        .wiki-toc ol{margin:0;padding-left:24px}
+        .wiki-toc ol li{margin:2px 0}
+        .wiki-toc ol li a{color:#0645ad}
+        .wiki-content .citation-needed{vertical-align:super;font-size:10px;color:#0645ad;cursor:help;font-family:'Inter',sans-serif}
+        .wiki-content .wiki-ref{vertical-align:super;font-size:10px;color:#0645ad;font-family:'Inter',sans-serif}
+        .wiki-content blockquote{border-left:3px solid #a2a9b1;margin:10px 0 10px 20px;padding:4px 12px;color:#54595d;font-style:italic}
+        .wiki-stub{background:#f8f4e8;border:1px solid #e0d5b5;padding:10px 14px;margin:20px 0;font-size:12px;font-family:'Inter',sans-serif;border-radius:2px;text-align:center}
+        .wiki-categories{border-top:1px solid #a2a9b1;padding:10px 0 0;margin-top:20px;font-size:12px;font-family:'Inter',sans-serif;color:#54595d}
+        .wiki-categories a{color:#0645ad}
+        .wiki-last-edited{font-size:11px;color:#72777d;margin-top:12px;font-family:'Inter',sans-serif}
+        @media(max-width:600px){.wiki-infobox{float:none;width:100%;margin:0 0 16px 0}}
+
+        /* ═══════ PARAM GLITCH EFFECT ═══════ */
+        .param-error-line{color:var(--red);font-weight:700;text-shadow:0 0 10px rgba(255,51,51,0.5);animation:paramFlicker 0.15s infinite}
+        @keyframes paramFlicker{0%,100%{opacity:1}50%{opacity:0.3}}
+        .param-recovery{color:var(--amber);animation:paramFade 0.5s ease-in}
+        @keyframes paramFade{0%{opacity:0}100%{opacity:1}}
+
         /* Matrix */
         #matrix-canvas{position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0;transition:opacity 0.5s}
         #matrix-canvas.active{opacity:0.7}
@@ -448,6 +536,7 @@
             <div class="desktop-icon" ondblclick="openTerminal()"><div class="icon-img">🖥️</div><div class="icon-label">Terminal</div></div>
             <div class="desktop-icon" ondblclick="openNotepad()"><div class="icon-img">📄</div><div class="icon-label">README</div></div>
             <div class="desktop-icon" ondblclick="openExplorer()"><div class="icon-img">📁</div><div class="icon-label">Projects</div></div>
+            <div class="desktop-icon" ondblclick="openBrowser()"><div class="icon-img">🌐</div><div class="icon-label">Browser</div></div>
             <div class="desktop-icon" ondblclick="showToast('🗑️','Recycle Bin','Recycle Bin is empty.')"><div class="icon-img">🗑️</div><div class="icon-label">Recycle Bin</div></div>
         </div>
     </div>
@@ -465,6 +554,7 @@
                 <div class="taskbar-app active-app" data-win="terminal" title="Terminal" onclick="focusWindow('terminal')">🖥️</div>
                 <div class="taskbar-app" data-win="notepad" title="Notepad" onclick="focusWindow('notepad')">📄</div>
                 <div class="taskbar-app" data-win="explorer" title="Files" onclick="focusWindow('explorer')">📁</div>
+                <div class="taskbar-app" data-win="browser" title="Browser" onclick="focusWindow('browser')">🌐</div>
             </div>
         </div>
         <div class="taskbar-right">
@@ -492,7 +582,7 @@
             <div class="start-app" onclick="closeStartMenu();openNotepad()"><span class="start-app-icon">📄</span><span class="start-app-name">Notepad</span></div>
             <div class="start-app" onclick="closeStartMenu();openExplorer()"><span class="start-app-icon">📁</span><span class="start-app-name">Files</span></div>
             <div class="start-app" onclick="closeStartMenu();showToast('⚙️','Settings','Settings app coming soon.')"><span class="start-app-icon">⚙️</span><span class="start-app-name">Settings</span></div>
-            <div class="start-app" onclick="closeStartMenu();showToast('🌐','Browser','Browser not installed.')"><span class="start-app-icon">🌐</span><span class="start-app-name">Browser</span></div>
+            <div class="start-app" onclick="closeStartMenu();openBrowser()"><span class="start-app-icon">🌐</span><span class="start-app-name">Browser</span></div>
             <div class="start-app" onclick="closeStartMenu();openSnake()"><span class="start-app-icon">🐍</span><span class="start-app-name">Snake</span></div>
             <div class="start-app" onclick="closeStartMenu();openTetris()"><span class="start-app-icon">🧱</span><span class="start-app-name">Tetris</span></div>
             <div class="start-app" onclick="closeStartMenu();showToast('🎵','Music','No tracks found.')"><span class="start-app-icon">🎵</span><span class="start-app-name">Music</span></div>
@@ -1151,7 +1241,7 @@ async function bootSequence() {
 
 // ── Commands ──
 const COMMANDS = {
-    help: () => `<div class="cmd-output"><span class="section-title">Available Commands</span>\n<span class="divider">─────────────────────────</span>\n<ul><li><span class="ok">about</span>      — Who is NullFrag?</li><li><span class="ok">skills</span>     — Technical skill set</li><li><span class="ok">projects</span>   — Featured projects</li><li><span class="ok">contact</span>    — Get in touch</li><li><span class="ok">socials</span>    — Social media links</li><li><span class="ok">neofetch</span>   — System information</li><li><span class="ok">clear</span>      — Clear terminal</li><li><span class="ok">matrix</span>     — 👀</li><li><span class="ok">bsod</span>       — Don't do it...</li><li><span class="ok">weather</span>    — Current conditions</li><li><span class="ok">snake</span>      — 🐍 Play Snake!</li><li><span class="ok">tetris</span>     — 🧱 Play Tetris!</li><li><span class="ok">history</span>    — Command history</li><li><span class="ok">help</span>       — Show this menu</li></ul></div>`,
+    help: () => `<div class="cmd-output"><span class="section-title">Available Commands</span>\n<span class="divider">─────────────────────────</span>\n<ul><li><span class="ok">about</span>      — Who is NullFrag?</li><li><span class="ok">skills</span>     — Technical skill set</li><li><span class="ok">projects</span>   — Featured projects</li><li><span class="ok">contact</span>    — Get in touch</li><li><span class="ok">socials</span>    — Social media links</li><li><span class="ok">neofetch</span>   — System information</li><li><span class="ok">clear</span>      — Clear terminal</li><li><span class="ok">matrix</span>     — 👀</li><li><span class="ok">bsod</span>       — Don't do it...</li><li><span class="ok">weather</span>    — Current conditions</li><li><span class="ok">snake</span>      — 🐍 Play Snake!</li><li><span class="ok">tetris</span>     — 🧱 Play Tetris!</li><li><span class="ok">browser</span>    — 🌐 Open NullBrowser</li><li><span class="ok">param</span>      — ⚠️ ???</li><li><span class="ok">history</span>    — Command history</li><li><span class="ok">help</span>       — Show this menu</li></ul></div>`,
 
     about: () => `<div class="cmd-output"><span class="section-title">┌─ About Paramdeep Singh ─┐</span><br><span class="white">  Hey! I'm <span class="ok">Paramdeep Singh</span> — a developer, creator, and</span>\n<span class="white">  tech enthusiast from <span class="accent">New Delhi</span> who loves building</span>\n<span class="white">  things that live on the edge of creativity and code.</span><br><span class="dim">  "Breaking things to understand how they work."</span></div>`,
 
@@ -1193,6 +1283,8 @@ const COMMANDS = {
     screensaver: () => '__MATRIX__',
     snake: () => { openSnake(); return `<span class="ok">  🐍 Launching Snake...</span> <span class="dim">Use arrow keys or WASD to play!</span>`; },
     tetris: () => { openTetris(); return `<span class="ok">  🧱 Launching Tetris...</span> <span class="dim">Arrow keys to move, Up to rotate!</span>`; },
+    browser: () => { openBrowser(); return `<span class="ok">  🌐 Launching Browser...</span>`; },
+    param: () => '__PARAM__',
     shutdown: () => { doShutdown(); return `<span class="dim">  Initiating shutdown sequence...</span>`; },
     restart: () => { doRestart(); return `<span class="dim">  Restarting NullFrag OS...</span>`; },
     sleep: () => { doSleep(); return `<span class="dim">  Entering sleep mode...</span>`; },
@@ -1209,6 +1301,7 @@ function executeCommand(cmd) {
         if (result === '__CLEAR__') { document.getElementById('terminal').innerHTML = ''; return; }
         if (result === '__MATRIX__') { showLine('<span class="ok">  Initiating Matrix rain...</span> <span class="dim">(click to stop)</span>'); startMatrix(); return; }
         if (result === '__BSOD__') { showLine('<span class="err">  CRITICAL ERROR: SYSTEM FAILURE</span>'); setTimeout(triggerBSOD, 800); return; }
+        if (result === '__PARAM__') { triggerParamMissing(); return; }
         showLine(result);
     } else {
         showLine(`<span class="err">  Command not found:</span> <span class="dim">${escapeHtml(trimmed)}</span>. <span class="dim">Type </span><span class="ok">help</span><span class="dim"> for commands.</span>`);
@@ -1243,6 +1336,269 @@ function startMatrix() {
 }
 
 window.addEventListener('resize', () => { const c = document.getElementById('matrix-canvas'); if(c){c.width=window.innerWidth;c.height=window.innerHeight;} });
+
+// ══════════════════════════════════════
+//   BROWSER
+// ══════════════════════════════════════
+let browserHistory = [];
+let browserHistoryIdx = -1;
+
+function openBrowser(startUrl) {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(960, vw - 60), h = Math.min(600, vh - 100);
+    const x = (vw - w) / 2, y = (vh - 48 - h) / 2;
+
+    const bodyHtml = `<div class="win-body" style="display:flex;flex-direction:column;height:100%">
+        <div class="browser-toolbar">
+            <button class="browser-nav-btn" id="browser-back" onclick="browserGoBack()" disabled title="Back">←</button>
+            <button class="browser-nav-btn" id="browser-fwd" onclick="browserGoForward()" disabled title="Forward">→</button>
+            <button class="browser-nav-btn" id="browser-refresh" onclick="browserReload()" title="Refresh">⟳</button>
+            <div class="browser-url-bar">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <input type="text" class="browser-url-input" id="browser-url" placeholder="Search or enter URL" autocomplete="off">
+            </div>
+            <button class="browser-nav-btn" onclick="browserGoHome()" title="Home">🏠</button>
+        </div>
+        <div class="browser-bookmarks">
+            <div class="browser-bookmark" onclick="browserNavigate('https://microcrm.store')"><span class="bm-icon">📊</span>MicroCRM</div>
+            <div class="browser-bookmark" onclick="browserNavigate('https://en.wikipedia.org')"><span class="bm-icon">📚</span>Wikipedia</div>
+            <div class="browser-bookmark" onclick="browserNavigate('https://nullfrag.online')"><span class="bm-icon">🛡️</span>NullFrag</div>
+            <div class="browser-bookmark" onclick="browserNavigate('https://developer.mozilla.org')"><span class="bm-icon">📖</span>MDN Docs</div>
+            <div class="browser-bookmark" onclick="browserNavigate('https://www.openstreetmap.org')"><span class="bm-icon">🗺️</span>Maps</div>
+            <div class="browser-bookmark" onclick="openParamWiki()" style="color:#e0a020"><span class="bm-icon">⚠️</span>Param?</div>
+        </div>
+        <div class="browser-viewport" id="browser-viewport">
+            <div class="browser-loading" id="browser-loading" style="display:none"></div>
+            <div class="browser-home" id="browser-home">
+                <div class="browser-home-logo">🌐</div>
+                <div class="browser-home-title">NullBrowser</div>
+                <div class="browser-home-sub">NullFrag OS — Built-in Web Browser</div>
+                <div class="browser-home-search">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="browser-home-input" placeholder="Search the web or enter a URL..." autocomplete="off">
+                </div>
+                <div class="browser-home-shortcuts">
+                    <div class="browser-home-shortcut" onclick="browserNavigate('https://microcrm.store')">
+                        <div class="bhs-icon">📊</div><div class="bhs-name">MicroCRM</div>
+                    </div>
+                    <div class="browser-home-shortcut" onclick="browserNavigate('https://en.wikipedia.org')">
+                        <div class="bhs-icon">📚</div><div class="bhs-name">Wikipedia</div>
+                    </div>
+                    <div class="browser-home-shortcut" onclick="browserNavigate('https://nullfrag.online')">
+                        <div class="bhs-icon">🛡️</div><div class="bhs-name">NullFrag</div>
+                    </div>
+                    <div class="browser-home-shortcut" onclick="browserNavigate('https://www.openstreetmap.org')">
+                        <div class="bhs-icon">🗺️</div><div class="bhs-name">Maps</div>
+                    </div>
+                    <div class="browser-home-shortcut" onclick="browserNavigate('https://developer.mozilla.org')">
+                        <div class="bhs-icon">📖</div><div class="bhs-name">MDN Docs</div>
+                    </div>
+                    <div class="browser-home-shortcut" onclick="browserNavigate('https://en.m.wikipedia.org/wiki/Special:Random')">
+                        <div class="bhs-icon">🎲</div><div class="bhs-name">Random Wiki</div>
+                    </div>
+                </div>
+            </div>
+            <div class="browser-error" id="browser-error">
+                <div class="be-icon">🚫</div>
+                <div class="be-title">This site can't be displayed</div>
+                <div class="be-msg">This website has blocked embedded access for security reasons. Most major websites (Google, YouTube, GitHub, etc.) enforce this restriction.</div>
+                <div class="be-url" id="browser-error-url"></div>
+                <button class="be-back" onclick="browserGoHome()">Go to Homepage</button>
+            </div>
+            <iframe id="browser-iframe" style="display:none" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-popups-to-escape-sandbox"></iframe>
+        </div>
+    </div>`;
+
+    const el = createWindow('browser', 'NullBrowser', '🌐', x, y, w, h, bodyHtml);
+
+    // Setup URL bar
+    const urlInput = document.getElementById('browser-url');
+    const homeInput = document.getElementById('browser-home-input');
+
+    if (urlInput) {
+        urlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                browserNavigate(urlInput.value);
+            }
+        });
+    }
+    if (homeInput) {
+        homeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                browserNavigate(homeInput.value);
+            }
+        });
+    }
+
+    // Setup iframe error detection
+    const iframe = document.getElementById('browser-iframe');
+    if (iframe) {
+        iframe.addEventListener('load', () => {
+            const loading = document.getElementById('browser-loading');
+            if (loading) loading.style.display = 'none';
+        });
+    }
+
+    browserHistory = [];
+    browserHistoryIdx = -1;
+
+    if (startUrl) {
+        browserNavigate(startUrl);
+    }
+}
+
+function browserNavigate(input) {
+    if (!input || !input.trim()) return;
+    let url = input.trim();
+
+    // If it doesn't start with http/https, decide if it's a URL or search
+    if (!/^https?:\/\//i.test(url)) {
+        // Looks like a domain
+        if (/^[a-zA-Z0-9][a-zA-Z0-9-]*\.[a-zA-Z]{2,}/.test(url)) {
+            url = 'https://' + url;
+        } else {
+            // Treat as search query
+            url = 'https://duckduckgo.com/?q=' + encodeURIComponent(url);
+        }
+    }
+
+    const urlInput = document.getElementById('browser-url');
+    const iframe = document.getElementById('browser-iframe');
+    const home = document.getElementById('browser-home');
+    const error = document.getElementById('browser-error');
+    const loading = document.getElementById('browser-loading');
+
+    // Remove any internal wiki page
+    const viewport = document.getElementById('browser-viewport');
+    const oldWiki = viewport?.querySelector('.wiki-page');
+    if (oldWiki) oldWiki.remove();
+
+    if (urlInput) urlInput.value = url;
+    if (home) home.style.display = 'none';
+    if (error) error.style.display = 'none';
+    if (loading) loading.style.display = 'block';
+
+    if (iframe) {
+        iframe.style.display = 'block';
+        iframe.src = url;
+
+        // Detect if the site blocks iframes after a timeout
+        let loaded = false;
+        const onLoad = () => { loaded = true; iframe.removeEventListener('load', onLoad); };
+        iframe.addEventListener('load', onLoad);
+
+        setTimeout(() => {
+            if (loading) loading.style.display = 'none';
+            // Try to check if we can access iframe content (same-origin only)
+            try {
+                // If cross-origin and blocked, we can't access .contentDocument
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                // If it loaded empty or about:blank, it may have been blocked
+                if (doc && doc.body && doc.body.innerHTML === '' && !loaded) {
+                    showBrowserError(url);
+                }
+            } catch(e) {
+                // Cross-origin — expected, the site loaded (or tried to)
+            }
+        }, 4000);
+    }
+
+    // Update history
+    if (browserHistoryIdx >= 0 && browserHistory[browserHistoryIdx] === url) return;
+    // Trim forward history
+    browserHistory = browserHistory.slice(0, browserHistoryIdx + 1);
+    browserHistory.push(url);
+    browserHistoryIdx = browserHistory.length - 1;
+    updateBrowserNav();
+}
+
+function showBrowserError(url) {
+    const iframe = document.getElementById('browser-iframe');
+    const error = document.getElementById('browser-error');
+    const errorUrl = document.getElementById('browser-error-url');
+    if (iframe) iframe.style.display = 'none';
+    if (error) error.style.display = 'flex';
+    if (errorUrl) errorUrl.textContent = url;
+}
+
+function browserGoBack() {
+    if (browserHistoryIdx <= 0) return;
+    browserHistoryIdx--;
+    loadBrowserHistoryEntry();
+}
+
+function browserGoForward() {
+    if (browserHistoryIdx >= browserHistory.length - 1) return;
+    browserHistoryIdx++;
+    loadBrowserHistoryEntry();
+}
+
+function loadBrowserHistoryEntry() {
+    const url = browserHistory[browserHistoryIdx];
+    const urlInput = document.getElementById('browser-url');
+    const iframe = document.getElementById('browser-iframe');
+    const home = document.getElementById('browser-home');
+    const error = document.getElementById('browser-error');
+    const loading = document.getElementById('browser-loading');
+    const viewport = document.getElementById('browser-viewport');
+    const oldWiki = viewport?.querySelector('.wiki-page');
+    if (oldWiki) oldWiki.remove();
+
+    // Check if this is the param wiki internal page
+    if (url === 'https://en.wikipedia.org/wiki/Paramdeep_Singh') {
+        if (urlInput) urlInput.value = url;
+        if (home) home.style.display = 'none';
+        if (error) error.style.display = 'none';
+        if (iframe) iframe.style.display = 'none';
+        if (loading) loading.style.display = 'none';
+        const wikiDiv = document.createElement('div');
+        wikiDiv.className = 'wiki-page';
+        wikiDiv.innerHTML = getParamWikiHTML();
+        viewport?.appendChild(wikiDiv);
+        updateBrowserNav();
+        return;
+    }
+
+    if (urlInput) urlInput.value = url;
+    if (home) home.style.display = 'none';
+    if (error) error.style.display = 'none';
+    if (loading) loading.style.display = 'block';
+    if (iframe) { iframe.style.display = 'block'; iframe.src = url; }
+    updateBrowserNav();
+}
+
+function browserReload() {
+    const iframe = document.getElementById('browser-iframe');
+    const loading = document.getElementById('browser-loading');
+    if (iframe && iframe.src && iframe.src !== 'about:blank') {
+        if (loading) loading.style.display = 'block';
+        iframe.src = iframe.src;
+    }
+}
+
+function browserGoHome() {
+    const iframe = document.getElementById('browser-iframe');
+    const home = document.getElementById('browser-home');
+    const error = document.getElementById('browser-error');
+    const urlInput = document.getElementById('browser-url');
+    const loading = document.getElementById('browser-loading');
+    const viewport = document.getElementById('browser-viewport');
+    const oldWiki = viewport?.querySelector('.wiki-page');
+    if (oldWiki) oldWiki.remove();
+
+    if (iframe) { iframe.style.display = 'none'; iframe.src = 'about:blank'; }
+    if (home) home.style.display = 'flex';
+    if (error) error.style.display = 'none';
+    if (urlInput) urlInput.value = '';
+    if (loading) loading.style.display = 'none';
+}
+
+function updateBrowserNav() {
+    const back = document.getElementById('browser-back');
+    const fwd = document.getElementById('browser-fwd');
+    if (back) back.disabled = browserHistoryIdx <= 0;
+    if (fwd) fwd.disabled = browserHistoryIdx >= browserHistory.length - 1;
+}
 
 // ══════════════════════════════════════
 //   SNAKE GAME
@@ -1674,6 +2030,212 @@ document.addEventListener('keydown', (e) => {
             break;
     }
 });
+
+// ══════════════════════════════════════
+//   PARAM MISSING — EASTER EGG
+// ══════════════════════════════════════
+async function triggerParamMissing() {
+    const glitchLines = [
+        '<span class="param-error-line">  ██ FATAL ERROR ██</span>',
+        '<span class="param-error-line">  TypeError: PARAM is missing</span>',
+        '<span class="param-error-line">  at NullFrag.core.resolve (kernel:0x7FF)</span>',
+        '<span class="param-error-line">  at System.identity.lookup (auth:0x3A2)</span>',
+        '<span class="param-error-line">  at Module._compile (internal:198:14)</span>',
+    ];
+
+    for (const line of glitchLines) {
+        showLine(line);
+        await wait(120);
+    }
+    await wait(400);
+    showLine('');
+    showLine('<span class="param-recovery">  ⚠ Recovering...</span>');
+    await wait(600);
+    showLine('<span class="param-recovery">  ⚠ PARAM located. Opening dossier...</span>');
+    await wait(800);
+    showLine('<span class="ok">  ✓ File found: wikipedia.org/wiki/Paramdeep_Singh</span>');
+    showLine('');
+    scrollToBottom();
+    await wait(400);
+    openParamWiki();
+}
+
+function openParamWiki() {
+    // Open browser window if not open
+    if (!windows.browser) {
+        openBrowser();
+    } else {
+        focusWindow('browser');
+    }
+
+    // Small delay to let browser create
+    setTimeout(() => {
+        const urlInput = document.getElementById('browser-url');
+        const iframe = document.getElementById('browser-iframe');
+        const home = document.getElementById('browser-home');
+        const error = document.getElementById('browser-error');
+        const loading = document.getElementById('browser-loading');
+        const viewport = document.getElementById('browser-viewport');
+
+        if (urlInput) urlInput.value = 'https://en.wikipedia.org/wiki/Paramdeep_Singh';
+        if (home) home.style.display = 'none';
+        if (error) error.style.display = 'none';
+        if (iframe) iframe.style.display = 'none';
+        if (loading) loading.style.display = 'none';
+
+        // Remove previous wiki page if any
+        const oldWiki = viewport?.querySelector('.wiki-page');
+        if (oldWiki) oldWiki.remove();
+
+        // Create the fake Wikipedia page
+        const wikiDiv = document.createElement('div');
+        wikiDiv.className = 'wiki-page';
+        wikiDiv.innerHTML = getParamWikiHTML();
+        viewport?.appendChild(wikiDiv);
+
+        // Update browser history
+        const fakeUrl = 'https://en.wikipedia.org/wiki/Paramdeep_Singh';
+        browserHistory = browserHistory.slice(0, browserHistoryIdx + 1);
+        browserHistory.push(fakeUrl);
+        browserHistoryIdx = browserHistory.length - 1;
+        updateBrowserNav();
+    }, 300);
+}
+
+function getParamWikiHTML() {
+    const editDate = new Date();
+    const formattedDate = editDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+    const editTime = editDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    return `
+    <div class="wiki-header">
+        <div class="wiki-logo">
+            <div class="wiki-logo-img">🌐</div>
+            <div class="wiki-logo-text">
+                <span class="wiki-logo-title">Wikipedia</span>
+                <span class="wiki-logo-sub">The Free Encyclopedia</span>
+            </div>
+        </div>
+        <div style="font-family:Inter,sans-serif;font-size:12px;color:#54595d">English</div>
+    </div>
+    <div class="wiki-tabs">
+        <div class="wiki-tab active">Article</div>
+        <div class="wiki-tab">Talk</div>
+        <div class="wiki-tab" style="margin-left:auto">Read</div>
+        <div class="wiki-tab">Edit</div>
+        <div class="wiki-tab">View history</div>
+    </div>
+    <div class="wiki-content">
+        <h1>Paramdeep Singh</h1>
+        <div class="wiki-shortdesc">Indian software developer and digital architect</div>
+        <div class="wiki-disambiguation">⚠️ <b>"Param"</b> redirects here. For the programming error, see <a href="#">Missing parameter</a>. For the supercomputer, see <a href="#">PARAM (supercomputer)</a>.</div>
+
+        <table class="wiki-infobox">
+            <caption>Paramdeep Singh</caption>
+            <tr><td class="infobox-img" colspan="2">🧑‍💻</td></tr>
+            <tr><th>Known as</th><td>Param</td></tr>
+            <tr><th>Born</th><td>New Delhi, India</td></tr>
+            <tr><th>Nationality</th><td>Indian 🇮🇳</td></tr>
+            <tr><th>Occupation</th><td>Software Developer, Digital Architect, System Breaker</td></tr>
+            <tr><th>Known for</th><td><a href="#">NullFrag OS</a>, <a href="#">MicroCRM</a></td></tr>
+            <tr><th>Website</th><td><a href="#">nullfrag.online</a><br><a href="#">microcrm.store</a></td></tr>
+            <tr><th>Email</th><td>ps7855@gmail.com</td></tr>
+            <tr><th>Status</th><td style="color:#00a854;font-weight:700">● Online</td></tr>
+        </table>
+
+        <p><b>Paramdeep Singh</b>, known online as <b>Param</b> or <b>NullFrag</b>, is an Indian <a href="#">software developer</a>, <a href="#">digital architect</a>, and tech enthusiast based in <a href="#">New Delhi</a>. He is the creator of <a href="#">NullFrag OS</a>, a critically acclaimed terminal-themed portfolio operating system, and <a href="#">MicroCRM</a>, a customer relationship management platform.<span class="wiki-ref">[1]</span></p>
+
+        <p>Described as someone who "breaks things to understand how they work,"<span class="citation-needed" title="citation needed">[citation needed]</span> Singh is recognized for his unconventional approach to web development, blending hacker aesthetics with functional design.</p>
+
+        <div class="wiki-toc">
+            <div class="toc-title">Contents</div>
+            <ol>
+                <li><a href="#">Early Life</a></li>
+                <li><a href="#">Career</a>
+                    <ol>
+                        <li><a href="#">NullFrag OS</a></li>
+                        <li><a href="#">MicroCRM</a></li>
+                    </ol>
+                </li>
+                <li><a href="#">Technical Skills</a></li>
+                <li><a href="#">Controversies</a></li>
+                <li><a href="#">Personal Life</a></li>
+                <li><a href="#">See Also</a></li>
+                <li><a href="#">References</a></li>
+            </ol>
+        </div>
+
+        <h2>Early Life</h2>
+        <p>Paramdeep Singh was born and raised in <a href="#">New Delhi, India</a>. From an early age, he displayed an affinity for computers and technology, allegedly disassembling his family's first computer at age 10 "to see where the internet lived."<span class="citation-needed" title="citation needed">[citation needed]</span></p>
+        <p>His introduction to programming came through modifying video game save files, which he describes as his "gateway into the matrix."<span class="wiki-ref">[2]</span> This early curiosity evolved into a deep passion for software development and system architecture.</p>
+
+        <h2>Career</h2>
+
+        <h3>NullFrag OS</h3>
+        <p><b>NullFrag OS</b> is Singh's flagship project — a fully interactive desktop operating system built entirely in the browser using HTML, CSS, and JavaScript. The system features a BIOS POST sequence, login screen, draggable window manager, built-in terminal with 20+ commands, a file explorer, notepad, web browser, and integrated games including <a href="#">Snake</a> and <a href="#">Tetris</a>.<span class="wiki-ref">[3]</span></p>
+        <p>The project gained attention for its meticulous attention to detail, including CRT scanline effects, a functioning start menu with power options (shutdown, restart, sleep), a notification system, and a <a href="#">Blue Screen of Death</a> easter egg. The terminal includes hacker-themed animations and a Matrix rain screensaver.</p>
+
+        <blockquote>"It's not a website. It's an experience. The kind that makes you forget you're in a browser." — Anonymous Reddit user<span class="citation-needed" title="citation needed">[citation needed]</span></blockquote>
+
+        <h3>MicroCRM</h3>
+        <p><b>MicroCRM</b> (<a href="#">microcrm.store</a>) is a lightweight customer relationship management platform developed by Singh. The project demonstrates his full-stack capabilities and focus on building practical, production-ready SaaS applications.<span class="wiki-ref">[4]</span></p>
+
+        <h2>Technical Skills</h2>
+        <p>Singh's technical repertoire includes:<span class="wiki-ref">[5]</span></p>
+        <table style="border-collapse:collapse;margin:10px 0;font-family:Inter,sans-serif;font-size:13px">
+            <tr style="border-bottom:1px solid #e0e0e0"><td style="padding:4px 20px 4px 0;font-weight:600">Languages</td><td style="padding:4px 0">JavaScript, Python, C++</td></tr>
+            <tr style="border-bottom:1px solid #e0e0e0"><td style="padding:4px 20px 4px 0;font-weight:600">Frontend</td><td style="padding:4px 0">React, HTML/CSS, Tailwind CSS</td></tr>
+            <tr style="border-bottom:1px solid #e0e0e0"><td style="padding:4px 20px 4px 0;font-weight:600">Backend</td><td style="padding:4px 0">Node.js, Express, RESTful APIs</td></tr>
+            <tr style="border-bottom:1px solid #e0e0e0"><td style="padding:4px 20px 4px 0;font-weight:600">Tools</td><td style="padding:4px 0">Git, Docker, Linux, VS Code</td></tr>
+            <tr><td style="padding:4px 20px 4px 0;font-weight:600">Security</td><td style="padding:4px 0">Networking, Penetration Testing</td></tr>
+        </table>
+        <p>His coffee consumption rate has been independently verified at approximately 80%.<span class="citation-needed" title="citation needed">[citation needed]</span></p>
+
+        <h2>Controversies</h2>
+        <p>In what has become known as the <b>"node_modules Incident,"</b> Singh allegedly ran <code style="background:#f1f1f1;padding:2px 6px;border-radius:3px;font-size:13px">rm -rf node_modules</code> on a production server, resulting in what he later described as "a learning experience."<span class="citation-needed" title="citation needed">[citation needed]</span> The incident was resolved within hours, though witnesses report hearing "creative vocabulary" from his office.<span class="wiki-ref">[6]</span></p>
+        <p>Singh was also briefly investigated by the <a href="#">FBI</a> after running the <code style="background:#f1f1f1;padding:2px 6px;border-radius:3px;font-size:13px">hack</code> command in his own terminal. The case was dismissed after agents realized it was a joke.<span class="citation-needed" title="citation needed">[citation needed]</span></p>
+        <p>He is known to have attempted <code style="background:#f1f1f1;padding:2px 6px;border-radius:3px;font-size:13px">sudo</code> on NullFrag OS <i>at least</i> 47 times despite having no root access.<span class="citation-needed" title="citation needed">[citation needed]</span></p>
+
+        <h2>Personal Life</h2>
+        <p>Singh resides in <a href="#">New Delhi, India</a>. He is known for his strict adherence to <a href="#">dark mode</a> across all devices and applications, once stating: "Light mode is a form of psychological warfare."<span class="wiki-ref">[7]</span></p>
+        <p>He considers his terminal to be his "comfort zone" and has been observed spending extended periods in command-line interfaces. His workspace reportedly consists of three monitors, all running dark-themed terminals.<span class="citation-needed" title="citation needed">[citation needed]</span></p>
+
+        <h2>See Also</h2>
+        <ul style="font-family:Inter,sans-serif;font-size:13px">
+            <li><a href="#">NullFrag OS</a> — Browser-based operating system</li>
+            <li><a href="#">MicroCRM</a> — CRM platform at microcrm.store</li>
+            <li><a href="#">Missing parameter</a> — Programming error (not to be confused with this article's subject)</li>
+            <li><a href="#">Dark mode</a> — The only acceptable display mode</li>
+            <li><a href="#">rm -rf /</a> — A command Singh is legally prohibited from running</li>
+        </ul>
+
+        <h2>References</h2>
+        <ol style="font-family:Inter,sans-serif;font-size:11px;color:#54595d;padding-left:20px">
+            <li>"NullFrag: The Terminal That Became an OS" — <i>Dev Weekly</i>, 2025</li>
+            <li>Singh, P. (2024). <i>How I Accidentally Became a Developer</i>. Self-published.</li>
+            <li>"Building a Desktop OS in Pure HTML/CSS/JS" — <i>Hacker News</i>, discussion thread</li>
+            <li>"MicroCRM: A Lightweight CRM for Modern Teams" — <i>Product Hunt</i></li>
+            <li>GitHub profile analysis, verified March 2026</li>
+            <li>Internal incident report #NF-4042, NullFrag Corp archives</li>
+            <li>Singh, P. interview with <i>Terminal Magazine</i>, January 2026</li>
+        </ol>
+
+        <div class="wiki-stub">📝 This article about an <b>Indian software developer</b> is a <a href="#">stub</a>. You can help Wikipedia by <s>touching grass</s> <a href="#">expanding it</a>.</div>
+
+        <div class="wiki-categories">
+            <b>Categories:</b>
+            <a href="#">Indian software developers</a> · 
+            <a href="#">People from New Delhi</a> · 
+            <a href="#">Web developers</a> · 
+            <a href="#">Open-source advocates</a> · 
+            <a href="#">Dark mode enthusiasts</a> · 
+            <a href="#">Terminal dwellers</a> · 
+            <a href="#">People who refuse to use light mode</a>
+        </div>
+
+        <div class="wiki-last-edited">This page was last edited on ${formattedDate} at ${editTime} · <a href="#">Content is available under CC BY-SA 4.0</a></div>
+    </div>`;
+}
 
 // ── START EVERYTHING ──
 runBios();
